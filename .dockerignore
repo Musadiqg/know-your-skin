@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.git/
+.gitignore
+.gitattributes
+
+notebook/
+*.ipynb
+
+venv/
+.env
+
+# Large model binaries can be mounted or baked into a separate image layer.
+app/models/**/*.joblib
+
+

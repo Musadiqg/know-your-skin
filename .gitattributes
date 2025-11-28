@@ -1,0 +1,11 @@
+app/models/logreg.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/scaler.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/scin_concerns_logreg.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/scin_concerns_scaler.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/scin_conditions_logreg.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/scin_conditions_scaler.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/cosmetic/fst_logreg.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/cosmetic/fst_mlp_scaler.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/cosmetic/fst_scaler.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/cosmetic/monk_logreg.joblib filter=lfs diff=lfs merge=lfs -text
+app/models/cosmetic/monk_scaler.joblib filter=lfs diff=lfs merge=lfs -text

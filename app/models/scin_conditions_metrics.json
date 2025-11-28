@@ -1,0 +1,230 @@
+{
+  "Abscess": {
+    "precision": 0.5714285714285714,
+    "recall": 0.36363636363636365,
+    "f1-score": 0.4444444444444444,
+    "support": 11.0
+  },
+  "Acne": {
+    "precision": 0.8666666666666667,
+    "recall": 0.6046511627906976,
+    "f1-score": 0.7123287671232876,
+    "support": 43.0
+  },
+  "Acute and chronic dermatitis": {
+    "precision": 0.3333333333333333,
+    "recall": 0.10526315789473684,
+    "f1-score": 0.16,
+    "support": 19.0
+  },
+  "Acute dermatitis, NOS": {
+    "precision": 0.34615384615384615,
+    "recall": 0.1836734693877551,
+    "f1-score": 0.24,
+    "support": 49.0
+  },
+  "Allergic Contact Dermatitis": {
+    "precision": 0.554726368159204,
+    "recall": 0.5645569620253165,
+    "f1-score": 0.5595984943538268,
+    "support": 395.0
+  },
+  "CD - Contact dermatitis": {
+    "precision": 0.5555555555555556,
+    "recall": 0.1388888888888889,
+    "f1-score": 0.2222222222222222,
+    "support": 36.0
+  },
+  "Cellulitis": {
+    "precision": 0.5,
+    "recall": 0.23076923076923078,
+    "f1-score": 0.3157894736842105,
+    "support": 13.0
+  },
+  "Cutaneous lupus": {
+    "precision": 0.3076923076923077,
+    "recall": 0.26666666666666666,
+    "f1-score": 0.2857142857142857,
+    "support": 15.0
+  },
+  "Eczema": {
+    "precision": 0.5958904109589042,
+    "recall": 0.5517970401691332,
+    "f1-score": 0.5729967069154775,
+    "support": 473.0
+  },
+  "Folliculitis": {
+    "precision": 0.6075949367088608,
+    "recall": 0.43636363636363634,
+    "f1-score": 0.5079365079365079,
+    "support": 110.0
+  },
+  "Herpes Simplex": {
+    "precision": 0.5576923076923077,
+    "recall": 0.58,
+    "f1-score": 0.5686274509803921,
+    "support": 50.0
+  },
+  "Herpes Zoster": {
+    "precision": 0.5714285714285714,
+    "recall": 0.3225806451612903,
+    "f1-score": 0.41237113402061853,
+    "support": 62.0
+  },
+  "Hypersensitivity": {
+    "precision": 0.3,
+    "recall": 0.14634146341463414,
+    "f1-score": 0.19672131147540983,
+    "support": 41.0
+  },
+  "Impetigo": {
+    "precision": 0.5277777777777778,
+    "recall": 0.4634146341463415,
+    "f1-score": 0.4935064935064935,
+    "support": 41.0
+  },
+  "Insect Bite": {
+    "precision": 0.5743243243243243,
+    "recall": 0.47752808988764045,
+    "f1-score": 0.5214723926380368,
+    "support": 178.0
+  },
+  "Irritant Contact Dermatitis": {
+    "precision": 0.38235294117647056,
+    "recall": 0.23008849557522124,
+    "f1-score": 0.287292817679558,
+    "support": 113.0
+  },
+  "Keratosis pilaris": {
+    "precision": 0.631578947368421,
+    "recall": 0.36363636363636365,
+    "f1-score": 0.46153846153846156,
+    "support": 33.0
+  },
+  "Lichen Simplex Chronicus": {
+    "precision": 0.46153846153846156,
+    "recall": 0.32432432432432434,
+    "f1-score": 0.38095238095238093,
+    "support": 37.0
+  },
+  "Lichen planus/lichenoid eruption": {
+    "precision": 0.2962962962962963,
+    "recall": 0.24242424242424243,
+    "f1-score": 0.26666666666666666,
+    "support": 33.0
+  },
+  "Molluscum Contagiosum": {
+    "precision": 0.6842105263157895,
+    "recall": 0.48148148148148145,
+    "f1-score": 0.5652173913043478,
+    "support": 27.0
+  },
+  "O/E - ecchymoses present": {
+    "precision": 0.9230769230769231,
+    "recall": 0.48,
+    "f1-score": 0.631578947368421,
+    "support": 25.0
+  },
+  "Pigmented purpuric eruption": {
+    "precision": 0.7241379310344828,
+    "recall": 0.44680851063829785,
+    "f1-score": 0.5526315789473685,
+    "support": 47.0
+  },
+  "Pityriasis lichenoides": {
+    "precision": 0.5,
+    "recall": 0.36363636363636365,
+    "f1-score": 0.42105263157894735,
+    "support": 11.0
+  },
+  "Pityriasis rosea": {
+    "precision": 0.5,
+    "recall": 0.4827586206896552,
+    "f1-score": 0.49122807017543857,
+    "support": 29.0
+  },
+  "Post-Inflammatory hyperpigmentation": {
+    "precision": 0.75,
+    "recall": 0.4,
+    "f1-score": 0.5217391304347826,
+    "support": 15.0
+  },
+  "Prurigo nodularis": {
+    "precision": 0.625,
+    "recall": 0.5882352941176471,
+    "f1-score": 0.6060606060606061,
+    "support": 17.0
+  },
+  "Psoriasis": {
+    "precision": 0.53125,
+    "recall": 0.3984375,
+    "f1-score": 0.45535714285714285,
+    "support": 128.0
+  },
+  "Scabies": {
+    "precision": 0.6,
+    "recall": 0.18181818181818182,
+    "f1-score": 0.27906976744186046,
+    "support": 33.0
+  },
+  "Seborrheic Dermatitis": {
+    "precision": 0.36363636363636365,
+    "recall": 0.4,
+    "f1-score": 0.38095238095238093,
+    "support": 10.0
+  },
+  "Stasis Dermatitis": {
+    "precision": 0.5833333333333334,
+    "recall": 0.4375,
+    "f1-score": 0.5,
+    "support": 32.0
+  },
+  "Tinea": {
+    "precision": 0.6595744680851063,
+    "recall": 0.3229166666666667,
+    "f1-score": 0.43356643356643354,
+    "support": 96.0
+  },
+  "Tinea Versicolor": {
+    "precision": 0.6666666666666666,
+    "recall": 0.375,
+    "f1-score": 0.48,
+    "support": 16.0
+  },
+  "Urticaria": {
+    "precision": 0.5578947368421052,
+    "recall": 0.38686131386861317,
+    "f1-score": 0.45689655172413796,
+    "support": 137.0
+  },
+  "Viral Exanthem": {
+    "precision": 0.7368421052631579,
+    "recall": 0.5185185185185185,
+    "f1-score": 0.6086956521739131,
+    "support": 27.0
+  },
+  "micro avg": {
+    "precision": 0.5646620542841937,
+    "recall": 0.44171523730224815,
+    "f1-score": 0.49567857977108154,
+    "support": 2402.0
+  },
+  "macro avg": {
+    "precision": 0.5572839611327591,
+    "recall": 0.37825227319405613,
+    "f1-score": 0.44100665577759013,
+    "support": 2402.0
+  },
+  "weighted avg": {
+    "precision": 0.5637097859496568,
+    "recall": 0.44171523730224815,
+    "f1-score": 0.4871060105114837,
+    "support": 2402.0
+  },
+  "samples avg": {
+    "precision": 0.5099887766554433,
+    "recall": 0.47770763187429854,
+    "f1-score": 0.45771204104537444,
+    "support": 2402.0
+  }
+}

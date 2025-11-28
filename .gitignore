@@ -1,0 +1,6 @@
+app/venv/
+__pycache__/
+*.pyc
+
+# Do not track local model binaries; we will upload them via HF UI
+app/models/**/*.joblib

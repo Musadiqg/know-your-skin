@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+python-multipart
+Pillow
+numpy
+scikit-learn
+joblib
+requests
+python-dotenv
+google-auth
+google-auth-oauthlib
+google-cloud-storage
