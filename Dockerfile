@@ -17,10 +17,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Run inside the inner app package so `lib.*` imports work as expected
+WORKDIR /app/app
+
 # Default port for FastAPI/uvicorn
 EXPOSE 8000
 
-# Start the API; app.py re-exports the FastAPI app from app/api/server.py
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start the API using the same target that works in the venv
+CMD ["uvicorn", "api.server:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
