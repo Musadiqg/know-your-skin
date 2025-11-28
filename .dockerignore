@@ -13,7 +13,8 @@ notebook/
 venv/
 .env
 
-# Large model binaries can be mounted or baked into a separate image layer.
-app/models/**/*.joblib
+# Large model binaries are NOT tracked in git (see .gitignore), but we DO want
+# them included in the Docker image if present locally under app/models/.
+# Make sure to copy your .joblib files into app/models/ on the VM before build.
 
 
