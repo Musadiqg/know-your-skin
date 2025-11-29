@@ -40,7 +40,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
             "Because your skin shows signs of dryness or tone irregularities, "
             "we suggest {name}, a lightweight hydrating serum that helps plump and support the skin barrier."
         ),
-        "image_name": None,
+        "image_name": "b5-serum.png",
     },
     "body_clarifying_cleanser": {
         "id": "body_clarifying_cleanser",
@@ -75,7 +75,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "why_template": (
             "{name} is a gentle facial cleanser that helps remove impurities while respecting a dry or sensitive skin barrier."
         ),
-        "image_name": None,
+        "image_name": "facial-moisture-balancing-cleanser.png",
     },
     "moisture_balancing_cleanser": {
         "id": "moisture_balancing_cleanser",
@@ -139,7 +139,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
             "Because your skin shows tone irregularities or dark spots, {name} is a night treatment designed to "
             "gradually fade discoloration and brighten overall radiance."
         ),
-        "image_name": None,
+        "image_name": "brightening-cream.png",
     },
     "discoloration_defense_serum": {
         "id": "discoloration_defense_serum",
@@ -176,7 +176,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
             "Daily SPF is essential when any skin concern is present. {name} offers broad-spectrum protection in a "
             "lightweight, no-white-cast gel formula that fits easily into most routines."
         ),
-        "image_name": None,
+        "image_name": "facial-gel-sunscreen.png",
     },
     "facial_sunscreen_gel": {
         "id": "facial_sunscreen_gel",
@@ -188,7 +188,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
             "Because consistent sun protection helps with nearly all skin goals, {name} is recommended as a "
             "broad-spectrum gel sunscreen that layers well over your routine."
         ),
-        "image_name": None,
+        "image_name": "facial-sunscreen-gel.png",
     },
 }
 
