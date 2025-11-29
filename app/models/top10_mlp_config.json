@@ -1,0 +1,17 @@
+{
+  "conditions": [
+    "Eczema",
+    "Allergic Contact Dermatitis",
+    "Insect Bite",
+    "Urticaria",
+    "Psoriasis",
+    "Folliculitis",
+    "Irritant Contact Dermatitis",
+    "Tinea",
+    "Herpes Zoster",
+    "Acne"
+  ],
+  "embedding_dim": 6144,
+  "threshold": 0.5,
+  "architecture": "pytorch_mlp"
+}

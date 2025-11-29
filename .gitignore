@@ -1,6 +1,17 @@
 app/venv/
+venv/
 __pycache__/
 *.pyc
 
 # Do not track local model binaries; we will upload them via HF UI
 app/models/**/*.joblib
+
+# Large data files (download via scripts/download_scin_data.py)
+data/
+
+# Environment files
+.env
+
+# Test images
+test.jpg
+test2.jpg

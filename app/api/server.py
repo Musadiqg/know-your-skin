@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from lib.full_analysis import analyze_full_image, analyze_full_session
 from lib.condition_inference import analyze_conditions_image
+from lib.cascaded_inference import analyze_cascaded, analyze_cascaded_session
 
 
 logger = logging.getLogger(__name__)
@@ -178,5 +179,141 @@ async def deep_analysis(
             os.remove(tmp_path)
         except OSError:
             pass
+
+    return result
+
+
+@app.post("/analyze_v2")
+async def analyze_v2(
+    image: UploadFile = File(...),
+    condition_threshold: float = 0.5,
+) -> Dict[str, Any]:
+    """
+    Cascaded analysis with interpretable concerns (V2).
+
+    This endpoint uses the improved top-10 condition classifier and derives
+    concerns via rule-based aggregation, providing full interpretability.
+
+    Returns:
+        {
+          "conditions": {
+            "<condition_name>": {"prob": float, "active": bool},
+            ...
+          },
+          "concerns": {
+            "<concern_tag>": {
+              "prob": float,
+              "active": bool,
+              "contributing_conditions": {"Eczema": 0.75, ...},
+              "title": "...",
+              "description": "...",
+              "can_recommend_products": bool,
+              ...
+            },
+            ...
+          },
+          "ranked_concerns": ["Dry_Sensitive", ...],
+          "summary": {
+            "num_active_conditions": int,
+            "num_active_concerns": int,
+            "top_condition": str,
+            "primary_concern": str,
+            "needs_escalation": bool
+          }
+        }
+
+    Expected request (multipart/form-data):
+        - field name: 'image'
+        - value: image file (JPEG/PNG)
+        - optional: 'condition_threshold' (float, default 0.5)
+    """
+    if not image.filename:
+        raise HTTPException(status_code=400, detail="Uploaded file must have a filename.")
+
+    if image.content_type and not image.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+
+    suffix = os.path.splitext(image.filename)[1] or ".jpg"
+
+    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp_path = tmp.name
+        shutil.copyfileobj(image.file, tmp)
+
+    try:
+        result = analyze_cascaded(tmp_path, condition_threshold=condition_threshold)
+    except FileNotFoundError as exc:
+        logger.exception("Top-10 model not found")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model not available: {exc}. Run training script first."
+        ) from exc
+    except Exception as exc:  # pragma: no cover
+        logger.exception("Error during cascaded analysis")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {exc}") from exc
+    finally:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+
+    return result
+
+
+@app.post("/analyze_v2_session")
+async def analyze_v2_session(
+    images: List[UploadFile] = File(...),
+    condition_threshold: float = 0.5,
+) -> Dict[str, Any]:
+    """
+    Cascaded analysis for multiple images with interpretable concerns (V2).
+
+    Analyzes multiple images from the same person and aggregates condition
+    probabilities (using MAX across images) before deriving concerns.
+
+    Returns same structure as /analyze_v2 but with aggregated results and
+    per-image probability breakdowns.
+
+    Expected request (multipart/form-data):
+        - field name: 'images'
+        - value: one or more image files (JPEG/PNG)
+        - optional: 'condition_threshold' (float, default 0.5)
+    """
+    if not images:
+        raise HTTPException(status_code=400, detail="At least one image must be provided.")
+
+    tmp_paths: List[str] = []
+
+    try:
+        for img in images:
+            if not img.filename:
+                raise HTTPException(status_code=400, detail="Each uploaded file must have a filename.")
+
+            if img.content_type and not img.content_type.startswith("image/"):
+                raise HTTPException(status_code=400, detail="All uploaded files must be images.")
+
+            suffix = os.path.splitext(img.filename)[1] or ".jpg"
+            with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                tmp_path = tmp.name
+                shutil.copyfileobj(img.file, tmp)
+            tmp_paths.append(tmp_path)
+
+        result = analyze_cascaded_session(tmp_paths, condition_threshold=condition_threshold)
+    except FileNotFoundError as exc:
+        logger.exception("Top-10 model not found")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model not available: {exc}. Run training script first."
+        ) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:  # pragma: no cover
+        logger.exception("Error during cascaded session analysis")
+        raise HTTPException(status_code=500, detail=f"Session analysis failed: {exc}") from exc
+    finally:
+        for path in tmp_paths:
+            try:
+                os.remove(path)
+            except OSError:
+                pass
 
     return result
