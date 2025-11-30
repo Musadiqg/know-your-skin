@@ -31,6 +31,8 @@ from config.top10_concerns import (
     CONCERN_TAGS_V2,
 )
 from lib.derm_local import embed_image_path
+from lib.recommendations import build_routine
+from config.hudson_products import PRODUCT_CONFIG
 
 
 # ============================================================================
@@ -288,6 +290,58 @@ def rank_concerns(concerns: Dict[str, Dict[str, Any]]) -> List[str]:
 
 
 # ============================================================================
+# Routine Building
+# ============================================================================
+
+def _build_routine_from_concerns(concerns: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Build a skincare routine from active concerns.
+    
+    Uses the existing build_routine logic but formats output with product details.
+    
+    Returns:
+        {
+            "active_concerns": [("Breakouts_Bumps", 0.69), ...],
+            "steps": {
+                "cleanser": [{"id": "...", "name": "...", "why": "..."}],
+                "treatment": [...],
+                "moisturizer": [...],
+                "sunscreen": [...]
+            }
+        }
+    """
+    # Build routine using existing logic
+    raw_routine = build_routine(concerns)
+    
+    # Enrich with product details
+    steps_enriched = {}
+    for step_name, product_ids in raw_routine.get("steps", {}).items():
+        step_products = []
+        for pid in product_ids:
+            product_info = PRODUCT_CONFIG.get(pid, {})
+            
+            # Get the "why" explanation
+            why_template = product_info.get("why_template", "")
+            why = why_template.format(name=product_info.get("name", pid)) if why_template else ""
+            
+            step_products.append({
+                "id": pid,
+                "name": product_info.get("name", pid),
+                "step": step_name,
+                "image_name": product_info.get("image_name"),
+                "why": why,
+            })
+        
+        if step_products:
+            steps_enriched[step_name] = step_products
+    
+    return {
+        "active_concerns": raw_routine.get("concerns", []),
+        "steps": steps_enriched,
+    }
+
+
+# ============================================================================
 # Full Analysis Pipeline
 # ============================================================================
 
@@ -347,9 +401,13 @@ def analyze_cascaded(
         ),
     }
     
+    # Step 6: Build routine from active concerns
+    routine = _build_routine_from_concerns(concerns)
+    
     return {
         "conditions": condition_probs,
         "concerns": concerns,
+        "routine": routine,
         "ranked_concerns": ranked,
         "summary": summary,
     }
@@ -392,9 +450,13 @@ def analyze_cascaded_from_embedding(
         ),
     }
     
+    # Build routine
+    routine = _build_routine_from_concerns(concerns)
+    
     return {
         "conditions": condition_probs,
         "concerns": concerns,
+        "routine": routine,
         "ranked_concerns": ranked,
         "summary": summary,
     }
@@ -471,9 +533,13 @@ def analyze_cascaded_session(
         ),
     }
     
+    # Build routine
+    routine = _build_routine_from_concerns(concerns)
+    
     return {
         "conditions": aggregated_conditions,
         "concerns": concerns,
+        "routine": routine,
         "ranked_concerns": ranked,
         "summary": summary,
     }

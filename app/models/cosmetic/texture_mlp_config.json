@@ -1,0 +1,30 @@
+{
+  "labels": [
+    "textures_raised_or_bumpy",
+    "textures_flat",
+    "textures_rough_or_flaky",
+    "textures_fluid_filled"
+  ],
+  "display_names": {
+    "textures_raised_or_bumpy": "Raised/Bumpy",
+    "textures_flat": "Flat",
+    "textures_rough_or_flaky": "Rough/Flaky",
+    "textures_fluid_filled": "Fluid-Filled"
+  },
+  "input_dim": 6144,
+  "hidden_units": [
+    256,
+    128
+  ],
+  "dropout": 0.1,
+  "metrics": {
+    "hamming_loss": 0.19612730061349692,
+    "macro_f1": 0.5890924598787624,
+    "per_label_f1": {
+      "Raised/Bumpy": 0.8607594936708861,
+      "Flat": 0.5062761506276151,
+      "Rough/Flaky": 0.5882352941176471,
+      "Fluid-Filled": 0.4010989010989011
+    }
+  }
+}

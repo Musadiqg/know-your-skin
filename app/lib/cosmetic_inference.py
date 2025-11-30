@@ -49,12 +49,22 @@ def _load_cosmetic_models(models_dir: str = COSMETIC_MODELS_DIR_DEFAULT) -> Dict
         models["monk_scaler"] = joblib.load(monk_scaler_path)
         models["monk_model"] = joblib.load(monk_model_path)
 
-    # Texture
-    texture_scaler_path = base / "texture_scaler.joblib"
-    texture_model_path = base / "texture_logreg.joblib"
-    if texture_scaler_path.exists() and texture_model_path.exists():
-        models["texture_scaler"] = joblib.load(texture_scaler_path)
-        models["texture_model"] = joblib.load(texture_model_path)
+    # Texture: prefer new MLP model, fall back to old logreg
+    texture_mlp_path = base / "texture_mlp_model.joblib"
+    texture_mlp_scaler_path = base / "texture_mlp_scaler.joblib"
+    if texture_mlp_path.exists():
+        # New MLP model (wrapper includes scaler)
+        models["texture_model"] = joblib.load(texture_mlp_path)
+        models["texture_scaler"] = joblib.load(texture_mlp_scaler_path) if texture_mlp_scaler_path.exists() else None
+        models["texture_model_type"] = "mlp"
+    else:
+        # Fall back to old logreg
+        texture_scaler_path = base / "texture_scaler.joblib"
+        texture_model_path = base / "texture_logreg.joblib"
+        if texture_scaler_path.exists() and texture_model_path.exists():
+            models["texture_scaler"] = joblib.load(texture_scaler_path)
+            models["texture_model"] = joblib.load(texture_model_path)
+            models["texture_model_type"] = "logreg"
 
     if not models:
         raise FileNotFoundError(
@@ -108,22 +118,47 @@ def predict_cosmetic_from_embedding(
         }
 
     # Texture (multi-label)
-    texture_scaler = models.get("texture_scaler")
     texture_model = models.get("texture_model")
-    if texture_scaler is not None and texture_model is not None:
-        X_std = texture_scaler.transform(emb)
-        proba_list: List[np.ndarray] = texture_model.predict_proba(X_std)
-        texture_info: Dict[str, Any] = {}
-        for tag, p in zip(TEXTURE_TAGS, proba_list):
-            # p shape: (n_samples, 2); probability of positive class is column 1
-            if p.shape[1] >= 2:
-                prob_pos = float(p[0, 1])
+    texture_model_type = models.get("texture_model_type", "logreg")
+    
+    if texture_model is not None:
+        # New MLP wrapper handles scaling internally via predict_proba
+        # Old logreg needs explicit scaling
+        if texture_model_type == "mlp":
+            # MLP wrapper - pass raw embedding, it handles scaling
+            proba_list: List[np.ndarray] = texture_model.predict_proba(emb)
+        else:
+            # Old logreg model
+            texture_scaler = models.get("texture_scaler")
+            if texture_scaler is not None:
+                X_std = texture_scaler.transform(emb)
+                proba_list = texture_model.predict_proba(X_std)
             else:
-                prob_pos = float(p[0, -1])
-            texture_info[tag] = {
-                "prob": prob_pos,
-                "active": bool(prob_pos >= 0.5),
-            }
+                proba_list = []
+        
+        # New texture labels from MLP training
+        TEXTURE_LABELS_NEW = [
+            "Texture_Bumpy",      # textures_raised_or_bumpy
+            "Texture_Smooth",     # textures_flat  
+            "Texture_Rough_Flakey", # textures_rough_or_flaky
+            "Texture_Fluid_Filled", # textures_fluid_filled
+        ]
+        
+        texture_info: Dict[str, Any] = {}
+        labels_to_use = TEXTURE_LABELS_NEW if texture_model_type == "mlp" else TEXTURE_TAGS
+        
+        for i, tag in enumerate(labels_to_use):
+            if i < len(proba_list):
+                p = proba_list[i]
+                # p shape: (n_samples, 2); probability of positive class is column 1
+                if len(p.shape) >= 2 and p.shape[1] >= 2:
+                    prob_pos = float(p[0, 1])
+                else:
+                    prob_pos = float(p[0, -1]) if len(p.shape) > 1 else float(p[0])
+                texture_info[tag] = {
+                    "prob": round(prob_pos, 3),
+                    "active": bool(prob_pos >= 0.5),
+                }
         result["texture"] = texture_info
 
     return result
