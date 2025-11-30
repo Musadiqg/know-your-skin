@@ -79,13 +79,13 @@ class TorchMLPWrapper:
             proba = self.model(X_t).numpy()
         
         # Return list of (n_samples, 2) arrays for sklearn compatibility
+        return [np.column_stack([1 - proba[:, i], proba[:, i]]) for i in range(proba.shape[1])]
 
 
 # Register classes in __main__ so joblib can find them when unpickling
 # (The model was saved from __main__ during training)
 sys.modules['__main__'].MultiLabelMLP = MultiLabelMLP
 sys.modules['__main__'].TorchMLPWrapper = TorchMLPWrapper
-        return [np.column_stack([1 - proba[:, i], proba[:, i]]) for i in range(proba.shape[1])]
 
 
 # ============================================================================
