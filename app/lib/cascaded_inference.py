@@ -19,6 +19,9 @@ from typing import Any, Dict, List, Optional
 
 import joblib
 import numpy as np
+import torch
+import torch.nn as nn
+from sklearn.preprocessing import StandardScaler
 
 from config.top10_concerns import (
     TOP_10_CONDITIONS,
@@ -27,6 +30,55 @@ from config.top10_concerns import (
     CONCERN_TAGS_V2,
 )
 from lib.derm_local import embed_image_path
+
+
+# ============================================================================
+# PyTorch Model Classes (must be defined here for joblib to unpickle)
+# ============================================================================
+
+class MultiLabelMLP(nn.Module):
+    """Google's architecture: 6144 -> 256 (relu, dropout) -> 128 (relu, dropout) -> 10 (sigmoid)"""
+    
+    def __init__(self, input_dim: int, hidden_units: List[int], output_dim: int, dropout: float = 0.1):
+        super().__init__()
+        
+        layers = []
+        prev_dim = input_dim
+        
+        for units in hidden_units:
+            layers.extend([
+                nn.Linear(prev_dim, units),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+            ])
+            prev_dim = units
+        
+        layers.append(nn.Linear(prev_dim, output_dim))
+        layers.append(nn.Sigmoid())
+        
+        self.network = nn.Sequential(*layers)
+    
+    def forward(self, x):
+        return self.network(x)
+
+
+class TorchMLPWrapper:
+    """Provides sklearn-compatible predict_proba() for inference."""
+    
+    def __init__(self, model: MultiLabelMLP, scaler: StandardScaler):
+        self.model = model
+        self.scaler = scaler
+        self.model.eval()
+    
+    def predict_proba(self, X: np.ndarray) -> List[np.ndarray]:
+        X_scaled = self.scaler.transform(X.astype(np.float32))
+        X_t = torch.FloatTensor(X_scaled)
+        
+        with torch.no_grad():
+            proba = self.model(X_t).numpy()
+        
+        # Return list of (n_samples, 2) arrays for sklearn compatibility
+        return [np.column_stack([1 - proba[:, i], proba[:, i]]) for i in range(proba.shape[1])]
 
 
 # ============================================================================
