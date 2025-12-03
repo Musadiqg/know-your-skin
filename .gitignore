@@ -15,3 +15,8 @@ data/
 # Test images
 test.jpg
 test2.jpg
+
+# Skin type datasets (too large for git)
+skin-type-1/
+skin-type-2/
+skin-type-merged/
