@@ -11,6 +11,7 @@ from lib.full_analysis import analyze_full_image, analyze_full_session
 from lib.condition_inference import analyze_conditions_image
 from lib.cascaded_inference import analyze_cascaded, analyze_cascaded_session
 from lib.cosmetic_inference import analyze_cosmetic_image
+from lib.skintype_inference import analyze_skintype_image
 
 
 logger = logging.getLogger(__name__)
@@ -491,5 +492,68 @@ def _enrich_skin_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
             "primary": primary,
             "education": education,
         }
+    
+    return result
+
+
+@app.post("/get_skin_type")
+async def get_skin_type(image: UploadFile = File(...)) -> Dict[str, Any]:
+    """
+    Classify skin type into one of 4 categories with probabilities for all classes.
+    
+    Categories:
+    - dry: Skin lacking moisture, feels tight
+    - normal: Balanced skin, neither too oily nor dry
+    - oily: Excess sebum production, prone to shine
+    - redness: Visible redness, sensitivity, possible irritation
+    
+    Returns:
+        {
+            "predicted": "oily",
+            "confidence": 0.58,
+            "probabilities": {
+                "dry": 0.12,
+                "normal": 0.25,
+                "oily": 0.58,
+                "redness": 0.05
+            },
+            "title": "Oily Skin",
+            "description": "Your skin produces excess sebum...",
+            "characteristics": ["Shiny appearance", ...],
+            "care_tips": ["Use gentle cleanser", ...]
+        }
+    
+    Expected request (multipart/form-data):
+        - field name: 'image'
+        - value: image file (JPEG/PNG)
+    """
+    if not image.filename:
+        raise HTTPException(status_code=400, detail="Uploaded file must have a filename.")
+    
+    if image.content_type and not image.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+    
+    suffix = os.path.splitext(image.filename)[1] or ".jpg"
+    
+    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp_path = tmp.name
+        shutil.copyfileobj(image.file, tmp)
+    
+    try:
+        result = analyze_skintype_image(tmp_path)
+    except FileNotFoundError as exc:
+        logger.exception("Skin type model not found")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Skin type model not available: {exc}. Run training script first."
+        ) from exc
+    except Exception as exc:
+        logger.exception("Error during skin type analysis")
+        raise HTTPException(status_code=500, detail=f"Skin type analysis failed: {exc}") from exc
+    finally:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
     
     return result
