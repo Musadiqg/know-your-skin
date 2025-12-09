@@ -34,7 +34,7 @@ TOP_10_CONDITIONS: List[str] = [
 
 
 # ============================================================================
-# Concern Tags (same 6 categories as before, for consistency)
+# Concern Tags (expanded based on CSV mapping from cosmo team)
 # ============================================================================
 
 CONCERN_TAGS_V2: List[str] = [
@@ -44,83 +44,155 @@ CONCERN_TAGS_V2: List[str] = [
     "Red_Scaly_Patches",
     "Pigment_Tone_Issues",
     "Possible_Infection",
+    # New tags for product specificity
+    "Dark_Spots",
+    "Dull_Uneven_Tone",
+    "Dry_Dehydrated",
+    "Mild_Scars",
 ]
 
 
 # ============================================================================
-# Concern Mapping V2 (Rule-based aggregation)
+# Concern Mapping V2 (Rule-based aggregation based on CSV from cosmo team)
 # ============================================================================
 
 CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
     "Dry_Sensitive": {
         "conditions": [
-            "Eczema",
-            "Allergic Contact Dermatitis",
-            "Irritant Contact Dermatitis",
+            "Eczema",  # Yes - Gentle hydration
+            "Allergic Contact Dermatitis",  # Gentle Only
+            "Irritant Contact Dermatitis",  # Gentle Only
         ],
-        "threshold": 0.40,  # Lower threshold - safe to suggest hydration
-        "aggregation": "max",  # Take max probability among conditions
+        "threshold": 0.40,
+        "aggregation": "max",
         "can_recommend_products": True,
-        "severity_weight": 1.0,  # For ranking concerns
+        "recommendation_type": "yes",  # Eczema allows Yes, others are Gentle Only - default to Yes
+        "severity_weight": 1.0,
+        "notes": "Gentle hydration and barrier support recommended",
+        "best_match_products": ["Daily Moisturizer", "Facial Moisture Balancing Cleanser"],
     },
     
     "Breakouts_Bumps": {
         "conditions": [
-            "Acne",
-            "Folliculitis",
+            "Acne",  # Yes - Acne treatment
+            "Folliculitis",  # Yes - Acne-type bumps
         ],
         "threshold": 0.45,
         "aggregation": "max",
         "can_recommend_products": True,
+        "recommendation_type": "yes",
         "severity_weight": 1.0,
+        "notes": "Acne treatment and pore clearing",
+        "best_match_products": ["Blemish + Age Defense Serum", "Salicylic Acid Cleanser"],
     },
     
     "Itchy_Hives": {
         "conditions": [
-            "Insect Bite",
-            "Urticaria",
-            "Allergic Contact Dermatitis",  # Often itchy
+            "Insect Bite",  # Gentle Only - Mild soothing
+            "Urticaria",  # Gentle Only - Soothe irritation
+            "Allergic Contact Dermatitis",  # Gentle Only - Soothe irritation
         ],
         "threshold": 0.45,
         "aggregation": "max",
-        "can_recommend_products": True,  # Soothing products only
-        "severity_weight": 1.2,  # Slightly higher - may need attention
+        "can_recommend_products": True,
+        "recommendation_type": "gentle_only",
+        "severity_weight": 1.2,
+        "notes": "Soothe irritation with gentle products",
+        "best_match_products": ["Daily Moisturizer"],
     },
     
     "Red_Scaly_Patches": {
         "conditions": [
-            "Psoriasis",
-            "Eczema",  # Can present as scaly
+            "Psoriasis",  # Gentle Only - Also advise dermatologist
+            "Eczema",  # Gentle Only - Also advise dermatologist
         ],
-        "threshold": 0.50,  # Higher threshold - needs caution
+        "threshold": 0.50,
         "aggregation": "max",
-        "can_recommend_products": False,  # Recommend seeing dermatologist
+        "can_recommend_products": True,  # Changed from False - CSV says Gentle Only
+        "recommendation_type": "gentle_only",
         "severity_weight": 1.5,
-        "escalation_note": "These patterns often benefit from professional evaluation.",
+        "escalation_note": "Also advise dermatologist",
+        "notes": "Gentle products only, professional evaluation recommended",
+        "best_match_products": ["Daily Moisturizer"],
     },
     
     "Pigment_Tone_Issues": {
-        # None of the top-10 directly cause pigmentation issues,
-        # but post-inflammatory hyperpigmentation can follow any inflammation
-        "conditions": [],  # Derived from other signals if needed
+        # Maps to: Dark_Spots, Dull_Uneven_Tone, Post_Acne_Marks, Uneven_Tone, PIH
+        "conditions": [],  # Derived from other signals or mapped from Dark_Spots/Dull_Uneven_Tone
         "threshold": 0.50,
         "aggregation": "max",
-        "can_recommend_products": True,  # SPF, brightening
+        "can_recommend_products": True,
+        "recommendation_type": "yes",
         "severity_weight": 0.8,
-        "note": "Consider PIH risk if other inflammatory conditions present.",
+        "notes": "SPF and brightening products recommended",
+        "best_match_products": ["Discoloration Defense Serum", "C15 Antioxidant Serum"],
     },
     
     "Possible_Infection": {
         "conditions": [
-            "Tinea",          # Fungal
-            "Herpes Zoster",  # Viral (shingles)
-            "Folliculitis",   # Can be bacterial
+            "Tinea",  # No - Advise see doctor
+            "Herpes Zoster",  # No - Advise see doctor
+            "Folliculitis",  # No - Advise see doctor (when flagged as infection)
         ],
-        "threshold": 0.55,  # High threshold - only flag if confident
+        "threshold": 0.55,
         "aggregation": "max",
-        "can_recommend_products": False,  # Must see healthcare provider
-        "severity_weight": 2.0,  # Highest priority
-        "escalation_note": "Please consider consulting a healthcare provider.",
+        "can_recommend_products": False,
+        "recommendation_type": "no",
+        "severity_weight": 2.0,
+        "escalation_note": "Advise see doctor",
+        "notes": "Must see healthcare provider - no product recommendations",
+        "best_match_products": [],
+    },
+    
+    # New concern tags
+    "Dark_Spots": {
+        "conditions": [],  # Not in top-10, but maps to Pigment_Tone_Issues
+        "threshold": 0.50,
+        "aggregation": "max",
+        "can_recommend_products": True,
+        "recommendation_type": "yes",
+        "severity_weight": 0.8,
+        "notes": "PIH/pigmentation - brightening products",
+        "best_match_products": ["Discoloration Defense Serum"],
+        # Maps to Pigment_Tone_Issues for aggregation
+        "maps_to": "Pigment_Tone_Issues",
+    },
+    
+    "Dull_Uneven_Tone": {
+        "conditions": [],  # Not in top-10, but maps to Pigment_Tone_Issues
+        "threshold": 0.50,
+        "aggregation": "max",
+        "can_recommend_products": True,
+        "recommendation_type": "yes",
+        "severity_weight": 0.8,
+        "notes": "Brightening antioxidant for tone-evening",
+        "best_match_products": ["C15 Antioxidant Serum"],
+        # Maps to Pigment_Tone_Issues for aggregation
+        "maps_to": "Pigment_Tone_Issues",
+    },
+    
+    "Dry_Dehydrated": {
+        "conditions": [],  # Not in top-10, but maps to Dry_Sensitive
+        "threshold": 0.40,
+        "aggregation": "max",
+        "can_recommend_products": True,
+        "recommendation_type": "yes",
+        "severity_weight": 1.0,
+        "notes": "Hydration booster",
+        "best_match_products": ["Hyaluronic B5 Serum"],
+        # Maps to Dry_Sensitive for aggregation
+        "maps_to": "Dry_Sensitive",
+    },
+    
+    "Mild_Scars": {
+        "conditions": [],  # Not in top-10
+        "threshold": 0.50,
+        "aggregation": "max",
+        "can_recommend_products": True,
+        "recommendation_type": "yes",
+        "severity_weight": 0.7,
+        "notes": "Scar fading treatment",
+        "best_match_products": ["Hudson Scar Gel"],
     },
 }
 
@@ -274,6 +346,104 @@ CONCERN_CONFIG_V2: Dict[str, Dict[str, Any]] = {
         "recommended_products": [
             "gentle_cleanser",
             "barrier_support_moisturizer",
+        ],
+    },
+    
+    # New concern tags
+    "Dark_Spots": {
+        "title": "Dark Spots and Post-Acne Marks",
+        "description": (
+            "Your photo shows patterns associated with dark spots or post-inflammatory "
+            "hyperpigmentation, often appearing after breakouts or inflammation."
+        ),
+        "what_it_means": (
+            "These spots occur when the skin produces extra pigment in response to inflammation. "
+            "They can fade over time with proper care and sun protection."
+        ),
+        "care_focus": (
+            "Focus on consistent sun protection and targeted brightening products to help fade "
+            "discoloration gradually. Avoid picking or further irritating the area."
+        ),
+        "disclaimer": (
+            "This is not a diagnosis. If spots are rapidly changing, asymmetric, or concerning, "
+            "please see a dermatologist for evaluation."
+        ),
+        "recommended_products": [
+            "discoloration_defense_serum",
+            "facial_gel_sunscreen",
+        ],
+    },
+    
+    "Dull_Uneven_Tone": {
+        "title": "Dull or Uneven Skin Tone",
+        "description": (
+            "Your photo shows patterns associated with lack of glow or uneven skin tone, "
+            "which can result from sun exposure, dead skin buildup, or post-inflammatory changes."
+        ),
+        "what_it_means": (
+            "Dullness often indicates a buildup of dead skin cells or uneven pigmentation. "
+            "Gentle exfoliation and brightening antioxidants can help restore radiance."
+        ),
+        "care_focus": (
+            "Focus on brightening antioxidants, gentle exfoliation, and consistent sun protection "
+            "to promote a more even, radiant complexion."
+        ),
+        "disclaimer": (
+            "This is a cosmetic assessment. For persistent or concerning changes in skin tone, "
+            "consult a dermatologist."
+        ),
+        "recommended_products": [
+            "c15_antioxidant_serum",
+            "facial_gel_sunscreen",
+        ],
+    },
+    
+    "Dry_Dehydrated": {
+        "title": "Dehydrated Skin",
+        "description": (
+            "Your photo shows patterns associated with dehydrated skin - tight, flaky, "
+            "or lacking moisture despite potential oil production."
+        ),
+        "what_it_means": (
+            "Dehydration occurs when the skin lacks water, which is different from dryness "
+            "(lack of oil). Even oily skin can be dehydrated and benefit from hydration."
+        ),
+        "care_focus": (
+            "Focus on hydrating serums with hyaluronic acid, gentle cleansers that don't strip, "
+            "and moisturizers that help lock in hydration."
+        ),
+        "disclaimer": (
+            "This is not a medical diagnosis. If dehydration is severe or persistent, "
+            "consider consulting a dermatologist."
+        ),
+        "recommended_products": [
+            "hyaluronic_b5_serum",
+            "facial_moisture_balancing_cleanser",
+            "daily_moisturizer",
+        ],
+    },
+    
+    "Mild_Scars": {
+        "title": "Fresh Scars or Acne Marks",
+        "description": (
+            "Your photo shows patterns associated with fresh scars (less than 3 months) "
+            "or post-acne marks that may benefit from targeted treatment."
+        ),
+        "what_it_means": (
+            "Fresh scars are still in the healing phase and may respond better to treatment "
+            "than older scars. Early intervention can help minimize their appearance."
+        ),
+        "care_focus": (
+            "Focus on scar-fading treatments, consistent sun protection to prevent darkening, "
+            "and gentle care to avoid further irritation."
+        ),
+        "disclaimer": (
+            "This is not a medical diagnosis. For deep, painful, or keloid scars, "
+            "please consult a dermatologist for professional treatment options."
+        ),
+        "recommended_products": [
+            "hudson_scar_gel",
+            "facial_gel_sunscreen",
         ],
     },
 }

@@ -208,6 +208,7 @@ def derive_concerns(
     """
     concerns = {}
     
+    # First pass: derive all concerns from conditions
     for concern_tag in CONCERN_TAGS_V2:
         mapping = CONCERN_MAP_V2.get(concern_tag, {})
         config = CONCERN_CONFIG_V2.get(concern_tag, {})
@@ -240,23 +241,20 @@ def derive_concerns(
         # Determine if active
         is_active = agg_prob >= threshold
         
-        # Build concern entry
+        # Store concern (will be updated in second pass if it maps to another concern)
         concerns[concern_tag] = {
-            # Core prediction
             "prob": round(agg_prob, 3),
             "active": is_active,
             "threshold": threshold,
-            
-            # Interpretability
             "contributing_conditions": contributing,
             "mapped_conditions": mapped_conditions,
-            
-            # From mapping config
             "can_recommend_products": mapping.get("can_recommend_products", True),
+            "recommendation_type": mapping.get("recommendation_type", "yes"),
             "severity_weight": mapping.get("severity_weight", 1.0),
             "escalation_note": mapping.get("escalation_note"),
-            
-            # User-facing text
+            "notes": mapping.get("notes"),
+            "best_match_products": mapping.get("best_match_products", []),
+            "maps_to": mapping.get("maps_to"),
             "title": config.get("title", concern_tag),
             "description": config.get("description", ""),
             "what_it_means": config.get("what_it_means", ""),
@@ -264,6 +262,19 @@ def derive_concerns(
             "disclaimer": config.get("disclaimer", ""),
             "recommended_products": config.get("recommended_products", []),
         }
+    
+    # Second pass: aggregate concerns that map to others (e.g., Dark_Spots → Pigment_Tone_Issues)
+    for concern_tag, concern_info in concerns.items():
+        maps_to = concern_info.get("maps_to")
+        if maps_to and maps_to in concerns:
+            # Aggregate this concern's probability into the target concern
+            target_concern = concerns[maps_to]
+            # Use max aggregation for mapped concerns
+            if concern_info["prob"] > target_concern["prob"]:
+                target_concern["prob"] = concern_info["prob"]
+                target_concern["active"] = concern_info["prob"] >= target_concern["threshold"]
+                # Merge contributing conditions
+                target_concern["contributing_conditions"].update(concern_info["contributing_conditions"])
     
     return concerns
 

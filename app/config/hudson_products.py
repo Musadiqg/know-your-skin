@@ -46,7 +46,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "body_clarifying_cleanser",
         "name": "Body Clarifying Cleanser",
         "step": "cleanser",
-        "supported_concerns": ["Dry_Sensitive", "Itchy_Hives", "Possible_Infection", "Red_Scaly_Patches"],
+        "supported_concerns": ["Dry_Sensitive"],  # Body_Dryness_Keratosis and Rough_Texture map to Dry_Sensitive
         "portfolio": "Hydration/Moisturising",
         "why_template": (
             "We recommend {name}, a gentle body cleanser designed to cleanse and moisturize dry or reactive skin "
@@ -70,7 +70,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "facial_moisture_balancing_cleanser",
         "name": "Facial Moisture Balancing Cleanser",
         "step": "cleanser",
-        "supported_concerns": ["Dry_Sensitive", "Red_Scaly_Patches", "Itchy_Hives"],
+        "supported_concerns": ["Dry_Sensitive"],  # Redness_Sensitivity and Compromised_Barrier map to Dry_Sensitive
         "portfolio": "Hydration/Moisturising",
         "why_template": (
             "{name} is a gentle facial cleanser that helps remove impurities while respecting a dry or sensitive skin barrier."
@@ -95,7 +95,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "blemish_age_defense_serum",
         "name": "Blemish + Age Defense Serum",
         "step": "treatment",
-        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],
+        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],  # Aging_Fine_Lines and Texture_Irregularities map to these
         "portfolio": "Anti Acne Portfolio",
         "why_template": (
             "Since we see features linked to breakouts or post-blemish marks, {name} can help clarify pores, "
@@ -107,7 +107,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "salicylic_acid_cleanser",
         "name": "Salicylic Acid Cleanser",
         "step": "cleanser",
-        "supported_concerns": ["Breakouts_Bumps", "Possible_Infection"],
+        "supported_concerns": ["Breakouts_Bumps"],  # Oily_Skin and Congestion map to Breakouts_Bumps
         "portfolio": "Anti Acne Portfolio",
         "why_template": (
             "{name} combines salicylic acid with a hypochlorous base to help reduce excess oil, clear pores, "
@@ -119,7 +119,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "silymarin_c15_serum",
         "name": "Silymarin C15 Serum",
         "step": "treatment",
-        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],
+        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],  # Oily_Skin→Breakouts_Bumps, Post_Acne_Marks→Pigment_Tone_Issues
         "portfolio": "Anti Acne Portfolio",
         "why_template": (
             "{name} pairs vitamin C with targeted actives to help reduce blemishes, refine texture, "
@@ -145,7 +145,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "discoloration_defense_serum",
         "name": "Discoloration Defense Serum",
         "step": "treatment",
-        "supported_concerns": ["Pigment_Tone_Issues"],
+        "supported_concerns": ["Pigment_Tone_Issues", "Dark_Spots"],  # Dark_Spots, Uneven_Tone, PIH all map to Pigment_Tone_Issues
         "portfolio": "Anti Ageing/ Anti Discoloration Portfolio",
         "why_template": (
             "{name} targets stubborn discoloration and uneven tone, making it a good fit when we detect pigment-related concerns."
@@ -156,7 +156,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "c15_antioxidant_serum",
         "name": "C15 Antioxidant Serum",
         "step": "treatment",
-        "supported_concerns": ["Pigment_Tone_Issues", "Breakouts_Bumps"],
+        "supported_concerns": ["Pigment_Tone_Issues", "Dull_Uneven_Tone"],  # Dull_Uneven_Tone, Aging_Fine_Lines, Sun_Damage map to Pigment_Tone_Issues
         "portfolio": "Anti Ageing/ Anti Discoloration Portfolio",
         "why_template": (
             "{name} delivers antioxidant vitamin C to help soften the look of fine lines and uneven tone, "
@@ -164,13 +164,37 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         ),
         "image_name": "c15_anti_oxidant_serum.png",
     },
+    "hyaluronic_b5_serum": {
+        "id": "hyaluronic_b5_serum",
+        "name": "Hyaluronic B5 Serum",
+        "step": "treatment",
+        "supported_concerns": ["Dry_Sensitive", "Dry_Dehydrated"],  # Dry_Dehydrated, Compromised_Barrier, Redness_Sensitivity map to Dry_Sensitive
+        "portfolio": "Hydration/Moisturising",
+        "why_template": (
+            "Because your skin shows signs of dehydration or barrier compromise, {name} provides "
+            "intensive hydration to help plump and support the skin barrier."
+        ),
+        "image_name": "hyaluronic_b5_serum.png",
+    },
+    "hudson_scar_gel": {
+        "id": "hudson_scar_gel",
+        "name": "Hudson Scar Gel",
+        "step": "treatment",
+        "supported_concerns": ["Mild_Scars", "Pigment_Tone_Issues"],  # Mild_Scars, Post_Acne_Marks→Pigment_Tone_Issues, Texture_Irregularities→Breakouts_Bumps
+        "portfolio": "Treatment",
+        "why_template": (
+            "For fresh scars or post-acne marks, {name} is designed to help fade the appearance "
+            "of scars and support smoother texture over time."
+        ),
+        "image_name": "hudson_scar_gel.png",
+    },
 
     # Sunscreens (recommended across many concerns, especially pigment)
     "facial_gel_sunscreen": {
         "id": "facial_gel_sunscreen",
-        "name": "Facial Gel Sunscreen",
+        "name": "Facial Sunscreen Gel",
         "step": "sunscreen",
-        "supported_concerns": ["Pigment_Tone_Issues", "Dry_Sensitive", "Red_Scaly_Patches", "Breakouts_Bumps", "Itchy_Hives", "Possible_Infection"],
+        "supported_concerns": ["Pigment_Tone_Issues"],  # Sun_Protection_Needed (flag), Dark_Spots_Prevention, Aging_Prevention map to Pigment_Tone_Issues
         "portfolio": "Sunscreen",
         "why_template": (
             "Daily SPF is essential when any skin concern is present. {name} offers broad-spectrum protection in a "
