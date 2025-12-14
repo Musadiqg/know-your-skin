@@ -20,15 +20,23 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-def _encode_png_bytes(img: Image.Image) -> bytes:
+def _encode_jpeg_bytes(img: Image.Image, quality: int = 90) -> bytes:
+    """Encode image as JPEG. Much faster than PNG with negligible quality loss at 90+."""
     buf = io.BytesIO()
-    img.save(buf, format="PNG")
+    img.save(buf, format="JPEG", quality=quality)
     return buf.getvalue()
+
+
+# Max dimension for resizing large images (reduces payload and processing time)
+MAX_IMAGE_DIMENSION = 1024
 
 
 def _image_file_to_base64(path: str) -> str:
     """
-    Load an image file, normalize to RGB PNG bytes, and return base64 string.
+    Load an image file, normalize to RGB JPEG bytes, and return base64 string.
+    
+    Uses JPEG (quality 90) instead of PNG for much faster encoding.
+    Optionally resizes large images to reduce payload size.
     """
     img_path = Path(path)
     if not img_path.is_file():
@@ -36,9 +44,15 @@ def _image_file_to_base64(path: str) -> str:
 
     with Image.open(img_path) as im:
         im = im.convert("RGB")
-        png_bytes = _encode_png_bytes(im)
+        
+        # Resize if image is very large (saves encoding time and network bandwidth)
+        if max(im.size) > MAX_IMAGE_DIMENSION:
+            im.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.LANCZOS)
+            logger.info(f"[TIMING] Resized image to {im.size}")
+        
+        jpeg_bytes = _encode_jpeg_bytes(im, quality=90)
 
-    return base64.b64encode(png_bytes).decode("utf-8")
+    return base64.b64encode(jpeg_bytes).decode("utf-8")
 
 
 def _load_vertex_config() -> Dict[str, str]:
