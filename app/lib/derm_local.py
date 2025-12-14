@@ -2,6 +2,7 @@ import base64
 import io
 import logging
 import os
+import time
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict
@@ -14,6 +15,9 @@ from dotenv import load_dotenv
 
 
 logger = logging.getLogger(__name__)
+
+# Configure logging to show timing info
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def _encode_png_bytes(img: Image.Image) -> bytes:
@@ -107,11 +111,15 @@ def _predict_embedding_from_b64(image_b64: str) -> np.ndarray:
 
     payload = {"instances": [{"input_bytes": image_b64}]}
 
+    start_time = time.time()
     try:
         resp = session.post(url, json=payload, timeout=60)
     except Exception as exc:  # pragma: no cover - thin network wrapper
         logger.exception("Error calling Derm Foundation Vertex endpoint")
         raise RuntimeError(f"Error calling Derm Foundation endpoint: {exc}") from exc
+    
+    vertex_time = time.time() - start_time
+    logger.info(f"[TIMING] Vertex AI HTTP request took {vertex_time:.2f}s")
 
     if resp.status_code != 200:
         # Try to surface helpful error text if present.
@@ -144,7 +152,20 @@ def embed_image_path(path: str) -> np.ndarray:
     This now calls the private Derm Foundation Vertex AI endpoint over HTTP
     through a Private Service Connect (PSC) internal IP, using ADC-based auth.
     """
+    start_time = time.time()
+    
+    # Time image preprocessing
+    preprocess_start = time.time()
     image_b64 = _image_file_to_base64(path)
-    return _predict_embedding_from_b64(image_b64)
+    preprocess_time = time.time() - preprocess_start
+    logger.info(f"[TIMING] Image preprocessing (load+base64) took {preprocess_time:.2f}s")
+    
+    # Time embedding call
+    embedding = _predict_embedding_from_b64(image_b64)
+    
+    total_time = time.time() - start_time
+    logger.info(f"[TIMING] Total embed_image_path took {total_time:.2f}s")
+    
+    return embedding
 
 

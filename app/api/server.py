@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 import logging
 import os
 import shutil
+import time
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +15,8 @@ from lib.cosmetic_inference import analyze_cosmetic_image
 from lib.skintype_inference import analyze_skintype_image
 
 
+# Configure logging for timing visibility
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -280,12 +283,17 @@ async def analyze_v2_session(
         - value: one or more image files (JPEG/PNG)
         - optional: 'condition_threshold' (float, default 0.5)
     """
+    endpoint_start = time.time()
+    logger.info(f"[TIMING] /analyze_v2_session started with {len(images)} images")
+    
     if not images:
         raise HTTPException(status_code=400, detail="At least one image must be provided.")
 
     tmp_paths: List[str] = []
 
     try:
+        # Time file upload processing
+        upload_start = time.time()
         for img in images:
             if not img.filename:
                 raise HTTPException(status_code=400, detail="Each uploaded file must have a filename.")
@@ -298,8 +306,15 @@ async def analyze_v2_session(
                 tmp_path = tmp.name
                 shutil.copyfileobj(img.file, tmp)
             tmp_paths.append(tmp_path)
+        upload_time = time.time() - upload_start
+        logger.info(f"[TIMING] File upload/save took {upload_time:.2f}s")
 
+        # Time the actual analysis
+        analysis_start = time.time()
         result = analyze_cascaded_session(tmp_paths, condition_threshold=condition_threshold)
+        analysis_time = time.time() - analysis_start
+        logger.info(f"[TIMING] analyze_cascaded_session took {analysis_time:.2f}s")
+        
     except FileNotFoundError as exc:
         logger.exception("Top-10 model not found")
         raise HTTPException(
@@ -318,6 +333,9 @@ async def analyze_v2_session(
             except OSError:
                 pass
 
+    total_time = time.time() - endpoint_start
+    logger.info(f"[TIMING] /analyze_v2_session TOTAL: {total_time:.2f}s")
+    
     return result
 
 
@@ -358,6 +376,9 @@ async def get_skin_profile(image: UploadFile = File(...)) -> Dict[str, Any]:
         - field name: 'image'
         - value: image file (JPEG/PNG)
     """
+    endpoint_start = time.time()
+    logger.info("[TIMING] /get_skin_profile started")
+    
     if not image.filename:
         raise HTTPException(status_code=400, detail="Uploaded file must have a filename.")
     
@@ -391,6 +412,9 @@ async def get_skin_profile(image: UploadFile = File(...)) -> Dict[str, Any]:
             os.remove(tmp_path)
         except OSError:
             pass
+    
+    total_time = time.time() - endpoint_start
+    logger.info(f"[TIMING] /get_skin_profile TOTAL: {total_time:.2f}s")
     
     return result
 
@@ -527,6 +551,9 @@ async def get_skin_type(image: UploadFile = File(...)) -> Dict[str, Any]:
         - field name: 'image'
         - value: image file (JPEG/PNG)
     """
+    endpoint_start = time.time()
+    logger.info("[TIMING] /get_skin_type started")
+    
     if not image.filename:
         raise HTTPException(status_code=400, detail="Uploaded file must have a filename.")
     
@@ -555,5 +582,8 @@ async def get_skin_type(image: UploadFile = File(...)) -> Dict[str, Any]:
             os.remove(tmp_path)
         except OSError:
             pass
+    
+    total_time = time.time() - endpoint_start
+    logger.info(f"[TIMING] /get_skin_type TOTAL: {total_time:.2f}s")
     
     return result

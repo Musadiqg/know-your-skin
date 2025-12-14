@@ -14,7 +14,9 @@ The key difference from the original classifiers:
 
 import functools
 import json
+import logging
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -24,6 +26,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.preprocessing import StandardScaler
+
+logger = logging.getLogger(__name__)
 
 from config.top10_concerns import (
     TOP_10_CONDITIONS,
@@ -499,15 +503,21 @@ def analyze_cascaded_session(
     Returns:
         Same structure as analyze_cascaded but aggregated across images
     """
+    total_start = time.time()
+    logger.info(f"[TIMING] Starting analyze_cascaded_session with {len(image_paths)} images")
+    
     if not image_paths:
         raise ValueError("At least one image path required")
     
     # PARALLEL EMBEDDING: Embed all images concurrently for much faster processing
-    # This reduces 3-image latency from ~45s to ~15s
+    embedding_start = time.time()
     with ThreadPoolExecutor(max_workers=len(image_paths)) as executor:
         embeddings = list(executor.map(embed_image_path, image_paths))
+    embedding_time = time.time() - embedding_start
+    logger.info(f"[TIMING] All {len(image_paths)} parallel embeddings completed in {embedding_time:.2f}s")
     
     # Collect predictions from all embeddings (fast CPU operations)
+    mlp_start = time.time()
     all_condition_probs: Dict[str, List[float]] = {cond: [] for cond in TOP_10_CONDITIONS}
     
     for embedding in embeddings:
@@ -516,6 +526,9 @@ def analyze_cascaded_session(
         for cond, info in cond_probs.items():
             if cond in all_condition_probs:
                 all_condition_probs[cond].append(info["prob"])
+    
+    mlp_time = time.time() - mlp_start
+    logger.info(f"[TIMING] MLP condition predictions took {mlp_time:.2f}s")
     
     # Aggregate: MAX across images
     aggregated_conditions = {}
@@ -553,6 +566,9 @@ def analyze_cascaded_session(
     
     # Build routine
     routine = _build_routine_from_concerns(concerns)
+    
+    total_time = time.time() - total_start
+    logger.info(f"[TIMING] Total analyze_cascaded_session took {total_time:.2f}s")
     
     return {
         "conditions": aggregated_conditions,
