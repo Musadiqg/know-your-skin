@@ -9,9 +9,10 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List
 
 from config.hudson_products import load_product_config
-from lib.cosmetic_inference import analyze_cosmetic_image
+from lib.cosmetic_inference import analyze_cosmetic_image, predict_cosmetic_from_embedding
 from lib.cosmetic_reporting import build_cosmetic_report
-from lib.concern_inference import analyze_image, analyze_image_report
+from lib.concern_inference import analyze_image, analyze_image_report, analyze_embedding
+from lib.derm_local import embed_image_path
 from lib.recommendations import build_routine
 from lib.reporting import build_report
 from lib.session_aggregation import aggregate_concern_probs, aggregate_fitzpatrick_probs
@@ -54,25 +55,27 @@ def analyze_full_session(
     Run cosmetic and concern analysis on multiple images from the same person
     and aggregate probabilities into a single session-level report.
 
-    This does not change the external API yet, but can be used by future
-    endpoints or CLI helpers to support 2–3 photos per analysis.
+    OPTIMIZED: Computes embeddings once per image and reuses them for both
+    cosmetic and concern analysis, significantly reducing latency.
     """
     if not image_paths:
         raise ValueError("analyze_full_session requires at least one image path")
 
-    # Per-image cosmetic and concern predictions. We run these in parallel so
-    # multiple images can share a single GPU pass where possible.
+    # STEP 1: Compute embeddings for all images in PARALLEL
+    # This is the expensive Vertex AI call - do it once per image
     with ThreadPoolExecutor(max_workers=len(image_paths)) as executor:
-        cosmetic_futures = [
-            executor.submit(analyze_cosmetic_image, path, cosmetic_models_dir)
-            for path in image_paths
-        ]
-        concern_futures = [
-            executor.submit(analyze_image, path, concern_models_dir)
-            for path in image_paths
-        ]
-        cosmetic_preds = [f.result() for f in cosmetic_futures]
-        concern_preds = [f.result() for f in concern_futures]
+        embeddings = list(executor.map(embed_image_path, image_paths))
+
+    # STEP 2: Run cosmetic and concern predictions on pre-computed embeddings
+    # These are fast CPU operations (MLP inference)
+    cosmetic_preds = [
+        predict_cosmetic_from_embedding(emb, models_dir=cosmetic_models_dir)
+        for emb in embeddings
+    ]
+    concern_preds = [
+        analyze_embedding(emb, models_dir=concern_models_dir)
+        for emb in embeddings
+    ]
 
     # Aggregate Fitzpatrick probabilities across images.
     fst_mean_probs = aggregate_fitzpatrick_probs(cosmetic_preds)

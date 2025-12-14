@@ -55,10 +55,43 @@ you can either:
    ```
 
 
-### Docker usage (high level)
+### Docker usage with docker-compose (recommended)
 
-This repo includes a `Dockerfile` and `.dockerignore` so you can build a
-container image and run the backend on your VM:
+The easiest way to run the backend is with docker-compose:
+
+1. Copy the environment template and fill in your values:
+
+   ```bash
+   cp env.example .env
+   # Edit .env with your actual values:
+   # DERM_VERTEX_PROJECT=know-your-skin-478012
+   # DERM_VERTEX_ENDPOINT=5562181934802534400
+   # DERM_VERTEX_REGION=us-central1
+   # DERM_VERTEX_PSC_IP=10.128.0.5
+   ```
+
+2. Build and run:
+
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. Check logs:
+
+   ```bash
+   docker-compose logs -f
+   ```
+
+4. Stop the service:
+
+   ```bash
+   docker-compose down
+   ```
+
+
+### Docker usage (manual)
+
+Alternatively, you can build and run the container manually:
 
 ```bash
 docker build -t know-your-skin-backend .

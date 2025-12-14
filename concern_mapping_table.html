@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Condition to Concern Mapping</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .concern-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .condition-list {
+            color: #555;
+        }
+        .threshold {
+            font-weight: 600;
+            color: #e74c3c;
+        }
+        .recommendation-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .recommendation-yes {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .recommendation-gentle {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .recommendation-no {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .no-conditions {
+            color: #999;
+            font-style: italic;
+        }
+        .aggregates-to {
+            color: #3498db;
+            font-size: 12px;
+            font-style: italic;
+        }
+        .summary-table {
+            margin-top: 40px;
+        }
+        .summary-table th {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Condition to Concern Mapping</h1>
+        <p>This table shows how the 10 top conditions map to 10 concern tags, including thresholds and recommendation types.</p>
+
+        <h2>Concern Mappings</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Concern Tag</th>
+                    <th>Mapped Conditions (from Top-10)</th>
+                    <th>Threshold</th>
+                    <th>Recommendation Type</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="concern-name">1. Dry_Sensitive</td>
+                    <td class="condition-list">
+                        • Eczema<br>
+                        • Allergic Contact Dermatitis<br>
+                        • Irritant Contact Dermatitis
+                    </td>
+                    <td class="threshold">0.40</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>Gentle hydration and barrier support</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">2. Breakouts_Bumps</td>
+                    <td class="condition-list">
+                        • Acne<br>
+                        • Folliculitis
+                    </td>
+                    <td class="threshold">0.45</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>Acne treatment and pore clearing</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">3. Itchy_Hives</td>
+                    <td class="condition-list">
+                        • Insect Bite<br>
+                        • Urticaria<br>
+                        • Allergic Contact Dermatitis
+                    </td>
+                    <td class="threshold">0.45</td>
+                    <td><span class="recommendation-type recommendation-gentle">Gentle Only</span></td>
+                    <td>Soothe irritation with gentle products</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">4. Red_Scaly_Patches</td>
+                    <td class="condition-list">
+                        • Psoriasis<br>
+                        • Eczema
+                    </td>
+                    <td class="threshold">0.50</td>
+                    <td><span class="recommendation-type recommendation-gentle">Gentle Only</span></td>
+                    <td>Also advise dermatologist</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">5. Pigment_Tone_Issues</td>
+                    <td class="condition-list no-conditions">None directly</td>
+                    <td class="threshold">0.50</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>Derived from other signals or aggregated from Dark_Spots/Dull_Uneven_Tone</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">6. Possible_Infection</td>
+                    <td class="condition-list">
+                        • Tinea<br>
+                        • Herpes Zoster<br>
+                        • Folliculitis (when flagged as infection)
+                    </td>
+                    <td class="threshold">0.55</td>
+                    <td><span class="recommendation-type recommendation-no">No</span></td>
+                    <td>Advise see doctor - no product recommendations</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">7. Dark_Spots</td>
+                    <td class="condition-list no-conditions">None directly</td>
+                    <td class="threshold">0.50</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>
+                        PIH/pigmentation - brightening products<br>
+                        <span class="aggregates-to">→ Aggregates into Pigment_Tone_Issues</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="concern-name">8. Dull_Uneven_Tone</td>
+                    <td class="condition-list no-conditions">None directly</td>
+                    <td class="threshold">0.50</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>
+                        Brightening antioxidant for tone-evening<br>
+                        <span class="aggregates-to">→ Aggregates into Pigment_Tone_Issues</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="concern-name">9. Dry_Dehydrated</td>
+                    <td class="condition-list no-conditions">None directly</td>
+                    <td class="threshold">0.40</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>
+                        Hydration booster<br>
+                        <span class="aggregates-to">→ Aggregates into Dry_Sensitive</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="concern-name">10. Mild_Scars</td>
+                    <td class="condition-list no-conditions">None directly</td>
+                    <td class="threshold">0.50</td>
+                    <td><span class="recommendation-type recommendation-yes">Yes</span></td>
+                    <td>Scar fading treatment (standalone concern)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Condition to Concern Summary</h2>
+        <p>This table shows which concerns each of the 10 top conditions can trigger:</p>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Top-10 Condition</th>
+                    <th>Maps To Concerns</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="concern-name">Eczema</td>
+                    <td class="condition-list">Dry_Sensitive, Red_Scaly_Patches</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Allergic Contact Dermatitis</td>
+                    <td class="condition-list">Dry_Sensitive, Itchy_Hives</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Irritant Contact Dermatitis</td>
+                    <td class="condition-list">Dry_Sensitive</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Insect Bite</td>
+                    <td class="condition-list">Itchy_Hives</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Urticaria</td>
+                    <td class="condition-list">Itchy_Hives</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Psoriasis</td>
+                    <td class="condition-list">Red_Scaly_Patches</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Folliculitis</td>
+                    <td class="condition-list">Breakouts_Bumps, Possible_Infection</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Tinea</td>
+                    <td class="condition-list">Possible_Infection</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Herpes Zoster</td>
+                    <td class="condition-list">Possible_Infection</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td class="concern-name">Acne</td>
+                    <td class="condition-list">Breakouts_Bumps</td>
+                    <td>1</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Legend</h2>
+        <ul>
+            <li><strong>Threshold:</strong> Minimum probability required for concern to be marked as "active"</li>
+            <li><strong>Recommendation Type:</strong>
+                <ul>
+                    <li><span class="recommendation-type recommendation-yes">Yes</span> - Can recommend products</li>
+                    <li><span class="recommendation-type recommendation-gentle">Gentle Only</span> - Can recommend gentle products only</li>
+                    <li><span class="recommendation-type recommendation-no">No</span> - Cannot recommend products (advise doctor)</li>
+                </ul>
+            </li>
+            <li><strong>Aggregation:</strong> Some concerns (Dark_Spots, Dull_Uneven_Tone, Dry_Dehydrated) aggregate their probabilities into parent concerns (Pigment_Tone_Issues, Dry_Sensitive)</li>
+        </ul>
+    </div>
+</body>
+</html>
+

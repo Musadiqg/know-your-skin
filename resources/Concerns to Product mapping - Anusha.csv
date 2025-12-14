@@ -1,0 +1,38 @@
+Condition,Description,Maps To Concern,Can Recommend Products?,Notes,Product (Best Match)
+Eczema,Chronic dry/inflamed skin,Dry_Sensitive,Yes,Gentle hydration,Daily Moisturizer
+Eczema,Chronic dry/inflamed skin,Red_Scaly_Patches,Gentle Only,Also advise dermatologist,Daily Moisturizer
+Allergic Contact Dermatitis,Allergic skin reaction,Dry_Sensitive,Gentle Only,Gentle only,Daily Moisturizer
+Allergic Contact Dermatitis,Allergic skin reaction,Itchy_Hives,Gentle Only,Soothe irritation,Daily Moisturizer
+Irritant Contact Dermatitis,Chemical/irritant reaction,Dry_Sensitive,Gentle Only,Barrier support,Daily Moisturizer
+Insect Bite,Bug bite reaction,Itchy_Hives,Gentle Only,Mild soothing,Daily Moisturizer
+Urticaria,Hives,Itchy_Hives,Gentle Only,Soothe irritation,Daily Moisturizer
+Psoriasis,Scaly red plaques,Red_Scaly_Patches,Gentle Only,Also advise dermatologist,Daily Moisturizer
+Folliculitis,Infected hair follicles,Breakouts_Bumps,Yes,Acne-type bumps,Salicylic Acid Cleanser
+Folliculitis,Infected hair follicles,Possible_Infection,No,Advise see doctor,—
+Tinea,Fungal infection (ringworm),Possible_Infection,No,Advise see doctor,—
+Herpes Zoster,Shingles (viral),Possible_Infection,No,Advise see doctor,—
+Acne,Pimples & clogged pores,Breakouts_Bumps,Yes,Acne treatment,Blemish + Age Defense Serum
+Dark Spots,Spots post acne,Dark_Spots,Yes,PIH/pigmentation,Discoloration Defense Serum
+Dull Skin (added to cover C15),"Lack of glow, uneven tone",Dull_Uneven_Tone,Yes,Brightening antioxidant,C15 Antioxidant Serum
+Uneven Skin Tone with acne or oily skin,"Mild discoloration, no deep pigmentation but oily skin or acne prone skin",Oily_dull_skin,Yes,Brightening antioxidant specially designed for acne prone and oily skin types,Silymarin c15 Serum
+Uneven Skin Tone with normal or dry skin,"Mild discoloration, no deep pigmentation",Dull_Uneven_Tone,Yes,Tone-evening,C15 Antioxidant Serum
+Acne marks,Acne marks on mature skin,Acne_marks,Yes,Anti-aging acids/antioxidants,Blemish + Age Defense Serum
+Dehydrated Skin,"Tight, flaky, dehydrated",Dry_Dehydrated,Yes,Hydration booster,Hyaluronic B5 Serum
+Dry Face skin,Dry skin on face,dry_skin,Yes,Gentle cleanser for all skin types,Facial Moisture Balancing Cleanser
+General Sensitive Skin,"Easily irritated, redness",Redness_Sensitivity,Yes,Gentle & soothing,Facial Moisture Balancing Cleanser
+Body Dryness / Keratosis,"Rough body patches, dryness",Body_Dryness_Keratosis,Yes,Gentle body hydration cleanser,Body Clarifying Cleanser
+Sun Exposure / Tanning Risk,Spending time outdoors,Sun_Protection_Needed,Yes,Broad-spectrum sunscreen,Facial Sunscreen Gel
+Fresh Scars (<3 months),New scars only,Mild_Scars,Yes,Scar fading,Hudson Scar Gel
+,,,,,
+Product Name,Step,Concern 1 (Primary),Concern 2,Concern 3,
+Salicylic Acid Cleanser,Cleanser,Breakouts_Bumps,Oily_Skin,Congestion,
+Facial Moisture Balancing Cleanser,Cleanser,Dry_Sensitive,Redness_Sensitivity,Compromised_Barrier,
+Body Clarifying Cleanser,Body Cleanser,Body_Dryness_Keratosis,Rough_Texture,Dry_Sensitive,
+Blemish + Age Defense Serum,Serum,Breakouts_Bumps,Aging_Fine_Lines,Texture_Irregularities,
+Silymarin C15 Serum,Serum,Breakouts_Bumps,Oily_Skin,Post_Acne_Marks,
+Discoloration Defense Serum,Serum,Dark_Spots,Uneven_Tone,PIH (Post-Inflammatory Hyperpigmentation),
+C15 Antioxidant Serum,Serum,Dull_Uneven_Tone,Aging_Fine_Lines,Sun_Damage,
+Hyaluronic B5 Serum,Serum,Dry_Dehydrated,Compromised_Barrier,Redness_Sensitivity,
+Daily Moisturizer,Moisturizer,Dry_Sensitive,Red_Scaly_Patches,Itchy_Hives,
+Facial Sunscreen Gel,Sunscreen,Sun_Protection_Needed,Dark_Spots_Prevention,Aging_Prevention,
+Hudson Scar Gel,Treatment,Mild_Scars,Post_Acne_Marks,Texture_Irregularities,
