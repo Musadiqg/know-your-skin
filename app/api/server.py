@@ -13,6 +13,8 @@ from lib.condition_inference import analyze_conditions_image
 from lib.cascaded_inference import analyze_cascaded, analyze_cascaded_session
 from lib.cosmetic_inference import analyze_cosmetic_image
 from lib.skintype_inference import analyze_skintype_image
+from lib.aging_inference import analyze_aging_image
+from lib.deepface_inference import estimate_age, get_age_assessment
 
 
 # Configure logging for timing visibility
@@ -585,5 +587,96 @@ async def get_skin_type(image: UploadFile = File(...)) -> Dict[str, Any]:
     
     total_time = time.time() - endpoint_start
     logger.info(f"[TIMING] /get_skin_type TOTAL: {total_time:.2f}s")
+    
+    return result
+
+
+@app.post("/get_skin_age")
+async def get_skin_age(image: UploadFile = File(...)) -> Dict[str, Any]:
+    """
+    Analyze skin aging signs and estimate biological age.
+    
+    Combines:
+    - Aging signs classifier (dark spots, puffy eyes, wrinkles)
+    - DeepFace age estimation
+    
+    Returns:
+        {
+            "estimated_age": 32,
+            "aging_signs": {
+                "dark_spots": 0.12,
+                "puffy_eyes": 0.65,
+                "wrinkles": 0.23
+            },
+            "primary_concern": "puffy_eyes",
+            "confidence": 0.65,
+            "title": "Puffy Eyes / Under-Eye Bags",
+            "description": "...",
+            "causes": [...],
+            "recommendations": [...],
+            "assessment": "Based on your image, your skin appears to be around 32 years old..."
+        }
+    
+    Expected request (multipart/form-data):
+        - field name: 'image'
+        - value: image file (JPEG/PNG)
+    """
+    endpoint_start = time.time()
+    logger.info("[TIMING] /get_skin_age started")
+    
+    if not image.filename:
+        raise HTTPException(status_code=400, detail="Uploaded file must have a filename.")
+    
+    if image.content_type and not image.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Uploaded file must be an image.")
+    
+    suffix = os.path.splitext(image.filename)[1] or ".jpg"
+    
+    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp_path = tmp.name
+        shutil.copyfileobj(image.file, tmp)
+    
+    try:
+        # Get aging signs classification (uses Derm Foundation)
+        aging_result = analyze_aging_image(tmp_path)
+        
+        # Get estimated age from DeepFace
+        age_result = estimate_age(tmp_path)
+        
+        # Combine results
+        estimated_age = age_result.get("estimated_age")
+        primary_concern = aging_result.get("primary_concern", "")
+        
+        # Generate assessment text
+        assessment = get_age_assessment(estimated_age, primary_concern)
+        
+        result = {
+            "estimated_age": estimated_age,
+            **aging_result,
+            "assessment": assessment,
+            "age_estimation_success": age_result.get("success", False),
+        }
+        
+        # Include error message if age estimation failed
+        if not age_result.get("success"):
+            result["age_estimation_error"] = age_result.get("error")
+        
+    except FileNotFoundError as exc:
+        logger.exception("Aging model not found")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Aging model not available: {exc}. Run training script first."
+        ) from exc
+    except Exception as exc:
+        logger.exception("Error during skin age analysis")
+        raise HTTPException(status_code=500, detail=f"Skin age analysis failed: {exc}") from exc
+    finally:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+    
+    total_time = time.time() - endpoint_start
+    logger.info(f"[TIMING] /get_skin_age TOTAL: {total_time:.2f}s")
     
     return result

@@ -13,3 +13,5 @@ google-cloud-storage
 huggingface_hub
 pandas
 torch
+deepface
+tf-keras

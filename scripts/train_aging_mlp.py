@@ -194,7 +194,7 @@ def train_mlp_fold(X_train, y_train, X_val, y_val, scaler, label_encoder, fold_n
     
     # Learning rate scheduler
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='min', factor=0.5, patience=5, verbose=False
+        optimizer, mode='min', factor=0.5, patience=5
     )
     
     best_val_acc = 0
@@ -252,7 +252,6 @@ def train_logreg_fold(X_train, y_train, X_val, y_val, scaler):
         max_iter=1000,
         class_weight='balanced',
         solver='lbfgs',
-        multi_class='multinomial',
         random_state=RANDOM_STATE
     )
     
@@ -346,7 +345,6 @@ def train_final_model(X, y, model_type='mlp'):
             max_iter=1000,
             class_weight='balanced',
             solver='lbfgs',
-            multi_class='multinomial',
             random_state=RANDOM_STATE
         )
         model.fit(X_train_s, y_train)

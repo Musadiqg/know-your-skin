@@ -1,0 +1,12 @@
+{
+  "classes": [
+    "dark spots",
+    "puffy eyes",
+    "wrinkles"
+  ],
+  "embedding_dim": 6144,
+  "model_type": "logreg",
+  "cv_accuracy_mean": 0.908096992019644,
+  "cv_accuracy_std": 0.01579765602898683,
+  "test_accuracy": 0.8895027624309392
+}
