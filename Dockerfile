@@ -5,9 +5,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System deps (minimal; adjust if you run into build issues for Pillow/numpy)
+# System deps (OpenGL libs required for OpenCV/DeepFace)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install CPU-only PyTorch first (185MB vs 900MB CUDA version)
