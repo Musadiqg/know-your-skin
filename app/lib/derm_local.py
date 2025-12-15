@@ -21,11 +21,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 # Image format for embedding generation
 # Options: 'png', 'jpeg', 'raw', 'auto'
+# - 'auto': Smart detection - uses 'raw' for JPEG/PNG, converts others to PNG (RECOMMENDED)
+# - 'raw': Send original file bytes (fast but fails for webp/gif/bmp)
 # - 'png': Always re-encode as PNG (lossless, but doesn't restore JPEG artifacts)
 # - 'jpeg': Always re-encode as JPEG (adds artifacts - NOT recommended)
-# - 'raw': Send original file bytes (best for avoiding double-compression)
-# - 'auto': Use 'raw' for JPEG/PNG inputs, 'png' for other formats
-DEFAULT_FORMAT = os.getenv("DERM_IMAGE_FORMAT", "raw").lower()
+DEFAULT_FORMAT = os.getenv("DERM_IMAGE_FORMAT", "auto").lower()
 
 ImageFormat = Literal["png", "jpeg", "raw", "auto"]
 
@@ -76,14 +76,14 @@ def _image_file_to_base64(path: str, image_format: Optional[ImageFormat] = None)
         else:
             # For other formats (BMP, GIF, WEBP, etc.), convert to PNG
             fmt = "png"
-        logger.debug(f"[FORMAT] Auto-detected: using '{fmt}' for {suffix} file")
+        logger.info(f"[FORMAT] Auto-detected: using '{fmt}' for {suffix} file")
 
     if fmt == "raw":
         # Send original file bytes directly - no re-encoding
         # This is optimal for JPEG inputs (avoids double-compression)
         with open(img_path, "rb") as f:
             raw_bytes = f.read()
-        logger.debug(f"[FORMAT] Using RAW bytes ({len(raw_bytes)} bytes, original: {suffix})")
+        logger.info(f"[FORMAT] Using RAW bytes ({len(raw_bytes)} bytes, original: {suffix})")
         return base64.b64encode(raw_bytes).decode("utf-8")
 
     # For explicit png/jpeg, decode and re-encode
@@ -92,10 +92,10 @@ def _image_file_to_base64(path: str, image_format: Optional[ImageFormat] = None)
         
         if fmt == "png":
             image_bytes = _encode_png_bytes(im)
-            logger.debug(f"[FORMAT] Re-encoded as PNG ({len(image_bytes)} bytes)")
+            logger.info(f"[FORMAT] Re-encoded as PNG ({len(image_bytes)} bytes)")
         else:  # jpeg
             image_bytes = _encode_jpeg_bytes(im, quality=95)
-            logger.debug(f"[FORMAT] Re-encoded as JPEG ({len(image_bytes)} bytes)")
+            logger.info(f"[FORMAT] Re-encoded as JPEG ({len(image_bytes)} bytes)")
 
     return base64.b64encode(image_bytes).decode("utf-8")
 
