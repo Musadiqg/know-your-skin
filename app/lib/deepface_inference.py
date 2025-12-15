@@ -15,6 +15,9 @@ def estimate_age(image_path: str) -> Dict[str, Any]:
     """
     Estimate age from a face image using DeepFace.
     
+    NOTE: DeepFace is temporarily disabled due to dependency issues.
+    This function returns a placeholder response.
+    
     Args:
         image_path: Path to the image file
         
@@ -32,59 +35,14 @@ def estimate_age(image_path: str) -> Dict[str, Any]:
             "error": "Face not detected"
         }
     """
-    try:
-        from deepface import DeepFace
-        
-        # Analyze the image for age
-        # enforce_detection=False allows partial faces
-        result = DeepFace.analyze(
-            img_path=image_path,
-            actions=['age'],
-            enforce_detection=False,
-            silent=True
-        )
-        
-        # DeepFace returns a list if multiple faces, or dict if single
-        if isinstance(result, list):
-            # Take the first face detected
-            if len(result) > 0:
-                age = result[0].get('age')
-            else:
-                return {
-                    "estimated_age": None,
-                    "success": False,
-                    "error": "No face detected in image"
-                }
-        else:
-            age = result.get('age')
-        
-        if age is not None:
-            return {
-                "estimated_age": int(age),
-                "success": True,
-                "error": None
-            }
-        else:
-            return {
-                "estimated_age": None,
-                "success": False,
-                "error": "Could not determine age"
-            }
-            
-    except ImportError:
-        logger.warning("DeepFace not installed. Age estimation unavailable.")
-        return {
-            "estimated_age": None,
-            "success": False,
-            "error": "DeepFace library not installed"
-        }
-    except Exception as e:
-        logger.warning(f"DeepFace age estimation failed: {e}")
-        return {
-            "estimated_age": None,
-            "success": False,
-            "error": str(e)
-        }
+    # TEMPORARILY DISABLED - DeepFace has dependency issues with OpenCV/TensorFlow
+    # TODO: Re-enable when DeepFace dependencies are resolved
+    logger.info("DeepFace age estimation temporarily disabled")
+    return {
+        "estimated_age": None,
+        "success": False,
+        "error": "Age estimation temporarily unavailable"
+    }
 
 
 def get_age_assessment(estimated_age: Optional[int], primary_concern: str) -> str:

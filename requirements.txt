@@ -12,5 +12,4 @@ google-auth-oauthlib
 google-cloud-storage
 huggingface_hub
 pandas
-deepface
-tf-keras
+# deepface and tf-keras temporarily removed - re-add when age estimation is fixed
