@@ -63,7 +63,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
             "Allergic Contact Dermatitis",  # Gentle Only
             "Irritant Contact Dermatitis",  # Gentle Only
         ],
-        "threshold": 0.30,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",  # Eczema allows Yes, others are Gentle Only - default to Yes
@@ -77,7 +77,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
             "Acne",  # Yes - Acne treatment
             "Folliculitis",  # Yes - Acne-type bumps
         ],
-        "threshold": 0.35,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",
@@ -92,7 +92,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
             "Urticaria",  # Gentle Only - Soothe irritation
             "Allergic Contact Dermatitis",  # Gentle Only - Soothe irritation
         ],
-        "threshold": 0.35,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "gentle_only",
@@ -106,7 +106,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
             "Psoriasis",  # Gentle Only - Also advise dermatologist
             "Eczema",  # Gentle Only - Also advise dermatologist
         ],
-        "threshold": 0.40,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,  # Changed from False - CSV says Gentle Only
         "recommendation_type": "gentle_only",
@@ -119,7 +119,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
     "Pigment_Tone_Issues": {
         # Maps to: Dark_Spots, Dull_Uneven_Tone, Post_Acne_Marks, Uneven_Tone, PIH
         "conditions": [],  # Derived from other signals or mapped from Dark_Spots/Dull_Uneven_Tone
-        "threshold": 0.40,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",
@@ -134,7 +134,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
             "Herpes Zoster",  # No - Advise see doctor
             "Folliculitis",  # No - Advise see doctor (when flagged as infection)
         ],
-        "threshold": 0.45,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": False,
         "recommendation_type": "no",
@@ -147,7 +147,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
     # New concern tags
     "Dark_Spots": {
         "conditions": [],  # Not in top-10, but maps to Pigment_Tone_Issues
-        "threshold": 0.40,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",
@@ -160,7 +160,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
     
     "Dull_Uneven_Tone": {
         "conditions": [],  # Not in top-10, but maps to Pigment_Tone_Issues
-        "threshold": 0.40,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",
@@ -173,7 +173,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
     
     "Dry_Dehydrated": {
         "conditions": [],  # Not in top-10, but maps to Dry_Sensitive
-        "threshold": 0.30,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",
@@ -186,7 +186,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
     
     "Mild_Scars": {
         "conditions": [],  # Not in top-10
-        "threshold": 0.40,
+        "threshold": 0.25,
         "aggregation": "max",
         "can_recommend_products": True,
         "recommendation_type": "yes",

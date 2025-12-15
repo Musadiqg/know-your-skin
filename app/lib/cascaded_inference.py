@@ -284,9 +284,12 @@ def derive_concerns(
     return concerns
 
 
-def rank_concerns(concerns: Dict[str, Dict[str, Any]]) -> List[str]:
+def rank_concerns(concerns: Dict[str, Dict[str, Any]], min_fallback_prob: float = 0.10) -> List[str]:
     """
     Rank active concerns by severity and probability.
+    
+    If no concerns are active but at least one has prob > min_fallback_prob,
+    return the highest-probability concern anyway (always show at least 1).
     
     Returns list of concern tags sorted by priority (highest first).
     """
@@ -302,7 +305,23 @@ def rank_concerns(concerns: Dict[str, Dict[str, Any]]) -> List[str]:
         reverse=True,
     )
     
-    return [tag for tag, _ in active_concerns]
+    result = [tag for tag, _ in active_concerns]
+    
+    # If no active concerns, but there's at least one with prob > min_fallback_prob,
+    # include the highest-probability concern as a fallback
+    if not result:
+        all_concerns = [
+            (tag, info)
+            for tag, info in concerns.items()
+            if info["prob"] >= min_fallback_prob
+        ]
+        if all_concerns:
+            # Sort by prob descending
+            all_concerns.sort(key=lambda x: x[1]["prob"], reverse=True)
+            # Return just the top one
+            result = [all_concerns[0][0]]
+    
+    return result
 
 
 # ============================================================================
