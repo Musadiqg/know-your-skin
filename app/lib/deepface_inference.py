@@ -3,11 +3,10 @@ Age Estimation Module using OpenCV DNN.
 
 Uses lightweight Caffe models for face detection and age estimation.
 No TensorFlow required - just OpenCV.
+Models are downloaded during Docker build.
 """
 
 import logging
-import os
-import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -22,67 +21,77 @@ AGE_BUCKETS = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48
 # Approximate center age for each bucket (for numeric output)
 AGE_CENTERS = [1, 5, 10, 17, 28, 40, 50, 70]
 
-# Model URLs (from public repos)
-MODEL_URLS = {
-    "age_deploy.prototxt": "https://raw.githubusercontent.com/spmallick/learnopencv/master/AgeGender/age_deploy.prototxt",
-    "age_net.caffemodel": "https://github.com/spmallick/learnopencv/raw/master/AgeGender/age_net.caffemodel",
-    "opencv_face_detector.pbtxt": "https://raw.githubusercontent.com/spmallick/learnopencv/master/AgeGender/opencv_face_detector.pbtxt",
-    "opencv_face_detector_uint8.pb": "https://github.com/spmallick/learnopencv/raw/master/AgeGender/opencv_face_detector_uint8.pb",
-}
-
 # Mean values for face preprocessing
 MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
 
+# Cache for loaded models
+_face_net = None
+_age_net = None
+_models_loaded = False
+_models_available = None
 
-def _ensure_models_exist() -> bool:
-    """
-    Download model files if they don't exist.
-    Returns True if all models are available, False otherwise.
-    """
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    all_present = True
-    for filename, url in MODEL_URLS.items():
-        filepath = MODELS_DIR / filename
+
+def _check_models_exist() -> bool:
+    """Check if all required model files exist."""
+    required_files = [
+        "age_deploy.prototxt",
+        "age_net.caffemodel",
+        "face_deploy.prototxt",
+        "face_net.caffemodel",
+    ]
+    for f in required_files:
+        filepath = MODELS_DIR / f
         if not filepath.exists():
-            logger.info(f"Downloading {filename}...")
-            try:
-                urllib.request.urlretrieve(url, filepath)
-                logger.info(f"Downloaded {filename}")
-            except Exception as e:
-                logger.error(f"Failed to download {filename}: {e}")
-                all_present = False
-    
-    return all_present
+            logger.warning(f"Missing model file: {filepath}")
+            return False
+        # Check file is not empty
+        if filepath.stat().st_size < 100:
+            logger.warning(f"Model file appears empty or corrupted: {filepath}")
+            return False
+    return True
 
 
 def _load_models():
     """
     Load the face detector and age estimator models.
     Returns (face_net, age_net) or (None, None) on failure.
+    Uses caching to avoid reloading.
     """
+    global _face_net, _age_net, _models_loaded, _models_available
+    
+    # Return cached result
+    if _models_loaded:
+        return _face_net, _age_net
+    
+    _models_loaded = True
+    
     try:
         import cv2
     except ImportError:
         logger.error("OpenCV not installed")
+        _models_available = False
         return None, None
     
-    if not _ensure_models_exist():
-        logger.error("Model files not available")
+    if not _check_models_exist():
+        logger.error("Age model files not available. They should be downloaded during Docker build.")
+        _models_available = False
         return None, None
     
     try:
-        face_net = cv2.dnn.readNet(
-            str(MODELS_DIR / "opencv_face_detector_uint8.pb"),
-            str(MODELS_DIR / "opencv_face_detector.pbtxt")
+        _face_net = cv2.dnn.readNetFromCaffe(
+            str(MODELS_DIR / "face_deploy.prototxt"),
+            str(MODELS_DIR / "face_net.caffemodel")
         )
-        age_net = cv2.dnn.readNet(
-            str(MODELS_DIR / "age_net.caffemodel"),
-            str(MODELS_DIR / "age_deploy.prototxt")
+        _age_net = cv2.dnn.readNetFromCaffe(
+            str(MODELS_DIR / "age_deploy.prototxt"),
+            str(MODELS_DIR / "age_net.caffemodel")
         )
-        return face_net, age_net
+        _models_available = True
+        logger.info("Age estimation models loaded successfully")
+        return _face_net, _age_net
     except Exception as e:
         logger.error(f"Failed to load models: {e}")
+        _models_available = False
         return None, None
 
 
@@ -155,7 +164,7 @@ def estimate_age(image_path: str) -> Dict[str, Any]:
             "error": "OpenCV not installed"
         }
     
-    # Load models
+    # Load models (uses cache)
     face_net, age_net = _load_models()
     if face_net is None or age_net is None:
         return {

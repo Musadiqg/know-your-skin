@@ -11,20 +11,20 @@ from config.hudson_products import PRODUCT_CONFIG, ProductConfig
 # Tunable parameters
 MAX_CONCERNS_IN_SUMMARY = 3
 # Minimum probability for including a concern section at all.
-MIN_PROB_FOR_SECTION = 0.4
+MIN_PROB_FOR_SECTION = 0.3
 # Thresholds for primary / secondary concern logic.
-PRIMARY_MIN_PROB = 0.6
-SECONDARY_MIN_PROB = 0.45
+PRIMARY_MIN_PROB = 0.5
+SECONDARY_MIN_PROB = 0.35
 SECONDARY_MAX_GAP = 0.15
 
 
 def _describe_probability(prob: float) -> str:
     """Map numeric probability to friendly language."""
-    if prob >= 0.8:
+    if prob >= 0.7:
         return "strong patterns"
-    if prob >= 0.6:
+    if prob >= 0.5:
         return "clear patterns"
-    if prob >= 0.4:
+    if prob >= 0.3:
         return "some features"
     return "subtle hints"
 

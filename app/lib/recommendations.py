@@ -11,7 +11,7 @@ from config.hudson_products import PRODUCT_CONFIG, ROUTINE_STEPS, ProductConfig
 
 
 # Business-tunable parameters
-MIN_PROB_FOR_CONCERN: float = 0.4
+MIN_PROB_FOR_CONCERN: float = 0.3
 MAX_PRODUCTS_PER_STEP: int = 1
 
 
