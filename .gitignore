@@ -6,6 +6,10 @@ __pycache__/
 # Do not track local model binaries; we will upload them via HF UI
 app/models/**/*.joblib
 
+# Age estimation models (downloaded at runtime)
+app/models/age/*.caffemodel
+app/models/age/*.pb
+
 # Large data files (download via scripts/download_scin_data.py)
 data/
 

@@ -652,6 +652,7 @@ async def get_skin_age(image: UploadFile = File(...)) -> Dict[str, Any]:
         
         result = {
             "estimated_age": estimated_age,
+            "age_range": age_result.get("age_range"),  # e.g., "(25-32)"
             **aging_result,
             "assessment": assessment,
             "age_estimation_success": age_result.get("success", False),
