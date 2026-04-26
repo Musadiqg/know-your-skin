@@ -1,13 +1,13 @@
 """
 Rule-based product recommendation module.
 
-Takes concern classifier output and Hudson product config, and builds a
+Takes concern classifier output and the brand product config, and builds a
 simple skincare routine (cleanser, treatment, moisturizer, sunscreen).
 """
 
 from typing import Any, Dict, List, Tuple
 
-from config.hudson_products import PRODUCT_CONFIG, ROUTINE_STEPS, ProductConfig
+from config.brand_products import PRODUCT_CONFIG, ROUTINE_STEPS, ProductConfig
 
 
 # Business-tunable parameters

@@ -8,7 +8,7 @@ results across multiple images from the same person/session.
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List
 
-from config.hudson_products import load_product_config
+from config.brand_products import load_product_config
 from lib.cosmetic_inference import analyze_cosmetic_image, predict_cosmetic_from_embedding
 from lib.cosmetic_reporting import build_cosmetic_report
 from lib.concern_inference import analyze_image, analyze_image_report, analyze_embedding

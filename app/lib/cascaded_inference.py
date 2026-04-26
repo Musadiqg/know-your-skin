@@ -37,7 +37,7 @@ from config.top10_concerns import (
 )
 from lib.derm_local import embed_image_path
 from lib.recommendations import build_routine
-from config.hudson_products import PRODUCT_CONFIG
+from config.brand_products import PRODUCT_CONFIG
 
 
 # ============================================================================

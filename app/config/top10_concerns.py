@@ -192,7 +192,7 @@ CONCERN_MAP_V2: Dict[str, Dict[str, Any]] = {
         "recommendation_type": "yes",
         "severity_weight": 0.7,
         "notes": "Scar fading treatment",
-        "best_match_products": ["Hudson Scar Gel"],
+        "best_match_products": ["Scar Gel"],
     },
 }
 
@@ -442,7 +442,7 @@ CONCERN_CONFIG_V2: Dict[str, Dict[str, Any]] = {
             "please consult a dermatologist for professional treatment options."
         ),
         "recommended_products": [
-            "hudson_scar_gel",
+            "scar_gel",
             "facial_gel_sunscreen",
         ],
     },

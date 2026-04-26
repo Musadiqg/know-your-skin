@@ -5,7 +5,7 @@ Reporting utilities to turn model outputs into a user-friendly skin report.
 from typing import Any, Dict, List, Tuple
 
 from config.concerns import CONCERN_CONFIG
-from config.hudson_products import PRODUCT_CONFIG, ProductConfig
+from config.brand_products import PRODUCT_CONFIG, ProductConfig
 
 
 # Tunable parameters

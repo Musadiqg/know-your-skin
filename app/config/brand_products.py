@@ -1,13 +1,25 @@
 """
-Product configuration for Hudson skincare products, normalized for recommendations.
+Product configuration for brand skincare products, normalised for recommendations.
 
-We derive a compact schema from `hudson-product-portfolio/hudson_skincare_products.json`
-and add:
-  - a stable `id` for each product
-  - a primary routine `step` (cleanser / treatment / moisturizer / sunscreen / other)
-  - which concern tags each product is suitable for
+This file is the single place you customise when deploying Know Your Skin for
+a new brand. Replace the example products below with your own catalog — the
+structure is intentionally simple so any team can adapt it quickly.
 
-Concern tags must match those defined in `config.concerns.CONCERN_TAGS`.
+Schema per product:
+  id                  Stable string key (used in API responses and mappings).
+  name                Display name shown to end users.
+  step                Routine slot: "cleanser" | "treatment" | "moisturizer" | "sunscreen" | "other"
+  supported_concerns  List of concern tags this product addresses.
+                      Tags must match those defined in config.concerns.CONCERN_TAGS.
+  portfolio           Optional grouping label (e.g. "Hydration", "Anti-Acne").
+  why_template        Optional explanation shown to users. Use {name} as a placeholder.
+  image_name          Optional filename relative to your product-images directory.
+
+Adding a new brand:
+  1. Clear PRODUCT_CONFIG below and add your own products.
+  2. Map each product's supported_concerns to the tags in config/concerns.py.
+  3. (Optional) Provide why_template strings in your brand voice.
+  4. Restart the API — no retraining needed.
 """
 
 from typing import Dict, List, TypedDict
@@ -20,22 +32,23 @@ class ProductConfig(TypedDict):
     supported_concerns: List[str]
     portfolio: str | None
     why_template: str | None
-    # Optional image filename (e.g. "daily_moisturizer.png") relative to a
-    # known product-images directory. The API will surface this so the client
-    # can display product images when available.
     image_name: str | None
 
 
-# Normalized configuration for the current Hudson product list.
-# Keys are stable product IDs; values include step and concern mapping.
+# ---------------------------------------------------------------------------
+# Example product catalog — replace with your brand's products.
+# The structure below is derived from a real skincare brand deployment and
+# shows how to map a full product range across concern categories.
+# ---------------------------------------------------------------------------
+
 PRODUCT_CONFIG: Dict[str, ProductConfig] = {
-    # Hydration / Dry & Sensitive focused
+    # ── Hydration / Dry & Sensitive ──────────────────────────────────────────
     "b5_serum": {
         "id": "b5_serum",
-        "name": "B5 Serum",
+        "name": "B5 Hydrating Serum",
         "step": "treatment",
         "supported_concerns": ["Dry_Sensitive", "Pigment_Tone_Issues"],
-        "portfolio": "Hydration/Moisturising",
+        "portfolio": "Hydration",
         "why_template": (
             "Because your skin shows signs of dryness or tone irregularities, "
             "we suggest {name}, a lightweight hydrating serum that helps plump and support the skin barrier."
@@ -46,22 +59,22 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "body_clarifying_cleanser",
         "name": "Body Clarifying Cleanser",
         "step": "cleanser",
-        "supported_concerns": ["Dry_Sensitive"],  # Body_Dryness_Keratosis and Rough_Texture map to Dry_Sensitive
-        "portfolio": "Hydration/Moisturising",
+        "supported_concerns": ["Dry_Sensitive"],
+        "portfolio": "Hydration",
         "why_template": (
-            "We recommend {name}, a gentle body cleanser designed to cleanse and moisturize dry or reactive skin "
+            "We recommend {name}, a gentle body cleanser designed to cleanse and moisturise dry or reactive skin "
             "without harsh surfactants."
         ),
         "image_name": "body_clarifying_cleanser.png",
     },
     "daily_moisturizer": {
         "id": "daily_moisturizer",
-        "name": "Daily Moisturizer",
+        "name": "Daily Moisturiser",
         "step": "moisturizer",
         "supported_concerns": ["Dry_Sensitive", "Red_Scaly_Patches", "Itchy_Hives"],
-        "portfolio": "Hydration/Moisturising",
+        "portfolio": "Hydration",
         "why_template": (
-            "{name} is a everyday moisturizer formulated for sensitive, dry, or redness-prone skin, "
+            "{name} is an everyday moisturiser formulated for sensitive, dry, or redness-prone skin, "
             "to help keep the barrier comfortable and hydrated."
         ),
         "image_name": "daily_moisturizer.png",
@@ -70,8 +83,8 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "facial_moisture_balancing_cleanser",
         "name": "Facial Moisture Balancing Cleanser",
         "step": "cleanser",
-        "supported_concerns": ["Dry_Sensitive"],  # Redness_Sensitivity and Compromised_Barrier map to Dry_Sensitive
-        "portfolio": "Hydration/Moisturising",
+        "supported_concerns": ["Dry_Sensitive"],
+        "portfolio": "Hydration",
         "why_template": (
             "{name} is a gentle facial cleanser that helps remove impurities while respecting a dry or sensitive skin barrier."
         ),
@@ -82,21 +95,20 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "name": "Moisture Balancing Cleanser",
         "step": "cleanser",
         "supported_concerns": ["Dry_Sensitive", "Itchy_Hives", "Red_Scaly_Patches", "Breakouts_Bumps"],
-        "portfolio": "Hydration+Anti Acne",
+        "portfolio": "Hydration + Anti-Acne",
         "why_template": (
             "{name} gently cleanses while supporting dry, sensitive, or acne-prone areas with a hypochlorous-based formula."
         ),
-        # Map the generic "hudson-cleanser.png" image to this cleanser.
-        "image_name": "hudson-cleanser.png",
+        "image_name": "brand-cleanser.png",
     },
 
-    # Anti-acne portfolio / breakouts
+    # ── Anti-Acne / Breakouts ────────────────────────────────────────────────
     "blemish_age_defense_serum": {
         "id": "blemish_age_defense_serum",
         "name": "Blemish + Age Defense Serum",
         "step": "treatment",
-        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],  # Aging_Fine_Lines and Texture_Irregularities map to these
-        "portfolio": "Anti Acne Portfolio",
+        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],
+        "portfolio": "Anti-Acne",
         "why_template": (
             "Since we see features linked to breakouts or post-blemish marks, {name} can help clarify pores, "
             "balance oil, and improve the look of blemishes over time."
@@ -107,8 +119,8 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "salicylic_acid_cleanser",
         "name": "Salicylic Acid Cleanser",
         "step": "cleanser",
-        "supported_concerns": ["Breakouts_Bumps"],  # Oily_Skin and Congestion map to Breakouts_Bumps
-        "portfolio": "Anti Acne Portfolio",
+        "supported_concerns": ["Breakouts_Bumps"],
+        "portfolio": "Anti-Acne",
         "why_template": (
             "{name} combines salicylic acid with a hypochlorous base to help reduce excess oil, clear pores, "
             "and support skin that is prone to acne breakouts."
@@ -119,8 +131,8 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "silymarin_c15_serum",
         "name": "Silymarin C15 Serum",
         "step": "treatment",
-        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],  # Oily_Skin→Breakouts_Bumps, Post_Acne_Marks→Pigment_Tone_Issues
-        "portfolio": "Anti Acne Portfolio",
+        "supported_concerns": ["Breakouts_Bumps", "Pigment_Tone_Issues"],
+        "portfolio": "Anti-Acne",
         "why_template": (
             "{name} pairs vitamin C with targeted actives to help reduce blemishes, refine texture, "
             "and support a more even-looking tone."
@@ -128,13 +140,13 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "image_name": "silymarin_c15_serum.png",
     },
 
-    # Pigment / anti-discoloration / antioxidant
+    # ── Pigmentation / Antioxidant ───────────────────────────────────────────
     "brightening_cream": {
         "id": "brightening_cream",
         "name": "Brightening Cream",
         "step": "treatment",
         "supported_concerns": ["Pigment_Tone_Issues"],
-        "portfolio": "Anti Ageing/ Anti Discoloration Portfolio",
+        "portfolio": "Anti-Ageing / Anti-Discoloration",
         "why_template": (
             "Because your skin shows tone irregularities or dark spots, {name} is a night treatment designed to "
             "gradually fade discoloration and brighten overall radiance."
@@ -145,8 +157,8 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "discoloration_defense_serum",
         "name": "Discoloration Defense Serum",
         "step": "treatment",
-        "supported_concerns": ["Pigment_Tone_Issues", "Dark_Spots"],  # Dark_Spots, Uneven_Tone, PIH all map to Pigment_Tone_Issues
-        "portfolio": "Anti Ageing/ Anti Discoloration Portfolio",
+        "supported_concerns": ["Pigment_Tone_Issues", "Dark_Spots"],
+        "portfolio": "Anti-Ageing / Anti-Discoloration",
         "why_template": (
             "{name} targets stubborn discoloration and uneven tone, making it a good fit when we detect pigment-related concerns."
         ),
@@ -156,8 +168,8 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "c15_antioxidant_serum",
         "name": "C15 Antioxidant Serum",
         "step": "treatment",
-        "supported_concerns": ["Pigment_Tone_Issues", "Dull_Uneven_Tone"],  # Dull_Uneven_Tone, Aging_Fine_Lines, Sun_Damage map to Pigment_Tone_Issues
-        "portfolio": "Anti Ageing/ Anti Discoloration Portfolio",
+        "supported_concerns": ["Pigment_Tone_Issues", "Dull_Uneven_Tone"],
+        "portfolio": "Anti-Ageing / Anti-Discoloration",
         "why_template": (
             "{name} delivers antioxidant vitamin C to help soften the look of fine lines and uneven tone, "
             "while supporting blemish-prone skin."
@@ -168,33 +180,33 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
         "id": "hyaluronic_b5_serum",
         "name": "Hyaluronic B5 Serum",
         "step": "treatment",
-        "supported_concerns": ["Dry_Sensitive", "Dry_Dehydrated"],  # Dry_Dehydrated, Compromised_Barrier, Redness_Sensitivity map to Dry_Sensitive
-        "portfolio": "Hydration/Moisturising",
+        "supported_concerns": ["Dry_Sensitive", "Dry_Dehydrated"],
+        "portfolio": "Hydration",
         "why_template": (
             "Because your skin shows signs of dehydration or barrier compromise, {name} provides "
             "intensive hydration to help plump and support the skin barrier."
         ),
         "image_name": "hyaluronic_b5_serum.png",
     },
-    "hudson_scar_gel": {
-        "id": "hudson_scar_gel",
-        "name": "Hudson Scar Gel",
+    "scar_gel": {
+        "id": "scar_gel",
+        "name": "Scar Gel",
         "step": "treatment",
-        "supported_concerns": ["Mild_Scars", "Pigment_Tone_Issues"],  # Mild_Scars, Post_Acne_Marks→Pigment_Tone_Issues, Texture_Irregularities→Breakouts_Bumps
+        "supported_concerns": ["Mild_Scars", "Pigment_Tone_Issues"],
         "portfolio": "Treatment",
         "why_template": (
             "For fresh scars or post-acne marks, {name} is designed to help fade the appearance "
             "of scars and support smoother texture over time."
         ),
-        "image_name": "hudson_scar_gel.png",
+        "image_name": "scar_gel.png",
     },
 
-    # Sunscreens (recommended across many concerns, especially pigment)
+    # ── Sunscreen ────────────────────────────────────────────────────────────
     "facial_gel_sunscreen": {
         "id": "facial_gel_sunscreen",
         "name": "Facial Sunscreen Gel",
         "step": "sunscreen",
-        "supported_concerns": ["Pigment_Tone_Issues"],  # Sun_Protection_Needed (flag), Dark_Spots_Prevention, Aging_Prevention map to Pigment_Tone_Issues
+        "supported_concerns": ["Pigment_Tone_Issues"],
         "portfolio": "Sunscreen",
         "why_template": (
             "Daily SPF is essential when any skin concern is present. {name} offers broad-spectrum protection in a "
@@ -204,7 +216,7 @@ PRODUCT_CONFIG: Dict[str, ProductConfig] = {
     },
     "facial_sunscreen_gel": {
         "id": "facial_sunscreen_gel",
-        "name": "Facial Sunscreen Gel",
+        "name": "Facial Sunscreen Gel SPF 50+",
         "step": "sunscreen",
         "supported_concerns": ["Pigment_Tone_Issues", "Dry_Sensitive", "Red_Scaly_Patches", "Breakouts_Bumps", "Itchy_Hives", "Possible_Infection"],
         "portfolio": "Sunscreen",
@@ -222,12 +234,9 @@ ROUTINE_STEPS: List[str] = ["cleanser", "treatment", "moisturizer", "sunscreen"]
 
 def load_product_config() -> Dict[str, ProductConfig]:
     """
-    Return the normalized product configuration.
+    Return the normalised product configuration.
 
-    For now we keep this static and do not dynamically parse the JSON file,
-    since the set of products is small and stable for the prototype.
+    Swap this implementation to load from a JSON file, database, or external
+    API if your brand's catalog is dynamic or managed externally.
     """
     return PRODUCT_CONFIG
-
-
-

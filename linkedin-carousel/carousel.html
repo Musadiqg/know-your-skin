@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Know Your Skin — Carousel</title>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --warm: #C4A797;
+      --deep: #5B4C41;
+      --darkest: #332C28;
+      --cream: #fdf7f3;
+      --bg: #f7f7f6;
+      --bg2: #f3ede9;
+      --t1: #332C28;
+      --t2: #857C76;
+      --t3: #a89890;
+      --border: #EAE6E3;
+      --white: #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #d8d2cc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+      gap: 0;
+    }
+
+    /* ── Top controls ─────────────────────── */
+    .controls {
+      width: 680px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .controls-hint {
+      font-size: 12px;
+      color: #888;
+    }
+    .save-btn {
+      background: var(--deep);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity .2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .save-btn:hover { opacity: .82; }
+    .save-btn svg { width: 14px; height: 14px; }
+
+    /* ── Viewer ───────────────────────────── */
+    .viewer { width: 680px; position: relative; }
+    .clips { overflow: hidden; border-radius: 2px; }
+    .rail { display: flex; transition: transform .4s cubic-bezier(.4,0,.2,1); }
+
+    /* ── Nav ─────────────────────────────── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .nav-btn {
+      background: var(--deep);
+      color: #fff;
+      border: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .2s;
+    }
+    .nav-btn:disabled { opacity: .2; cursor: default; }
+    .dots { display: flex; gap: 6px; align-items: center; }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #bbb;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .dot.on { background: var(--deep); transform: scale(1.3); }
+    .nav-ctr {
+      font-size: 12px;
+      color: #888;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       SLIDE BASE
+    ══════════════════════════════════════════════════════════════ */
+    .slide {
+      width: 680px;
+      height: 680px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Shared helpers ─── */
+    .accent-bar { height: 4px; background: var(--warm); }
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .wordmark-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 52px 36px;
+      margin-top: auto;
+    }
+    .wordmark {
+      font-family: 'Georgia', serif;
+      font-size: 11px;
+      font-style: italic;
+      letter-spacing: .3px;
+    }
+    .pg-num { font-size: 11px; }
+
+    /* ═══════ SLIDE 1 — HERO ═══════ */
+    .s1 { background: var(--bg); }
+    .s1 .inner {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      padding: 48px 52px 0;
+      gap: 24px;
+    }
+    .s1 .left { display: flex; flex-direction: column; justify-content: center; }
+    .s1 .eyebrow { color: var(--warm); margin-bottom: 22px; }
+    .s1 h1 {
+      font-family: 'Georgia', serif;
+      font-size: 54px;
+      font-weight: 400;
+      color: var(--t1);
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    .s1 h1 em { font-style: italic; color: var(--deep); }
+    .s1 p {
+      font-size: 15px;
+      color: var(--t2);
+      line-height: 1.6;
+      margin-bottom: 28px;
+      max-width: 340px;
+    }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 2px;
+    }
+    .chip-solid { background: var(--deep); color: #fff; }
+    .chip-outline { border: 1.5px solid var(--border); color: var(--t3); }
+    .s1 .right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .s1 .wordmark { color: var(--t3); }
+    .s1 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 2 — PROBLEM ═══════ */
+    .s2 { background: var(--cream); }
+    .s2 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s2 .eyebrow { color: var(--warm); margin-bottom: 22px; }
+    .s2 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 50px;
+      font-weight: 400;
+      color: var(--t1);
+      line-height: 1.13;
+      letter-spacing: -.8px;
+      margin-bottom: 28px;
+    }
+    .s2 h2 em { font-style: italic; color: var(--deep); }
+    .s2 .rule { width: 40px; height: 2px; background: var(--warm); margin-bottom: 28px; }
+    .s2 .sub {
+      font-size: 17px;
+      color: var(--t2);
+      line-height: 1.65;
+      max-width: 460px;
+      margin-bottom: 36px;
+    }
+    .s2-bars {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .s2-bar {
+      width: 32px;
+      border-radius: 2px;
+      background: var(--warm);
+    }
+    .s2-icon-label {
+      font-size: 11px;
+      color: var(--t2);
+      text-align: center;
+      max-width: 80px;
+      line-height: 1.4;
+    }
+    .s2-arrow { color: var(--border); font-size: 20px; margin-top: -10px; }
+    .s2 .wordmark { color: var(--t3); }
+    .s2 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 3 — SOLUTION INTRO (dark) ═══════ */
+    .s3 { background: var(--deep); }
+    .s3 .accent-bar { background: var(--warm); }
+    .s3 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s3 .eyebrow { color: var(--warm); margin-bottom: 22px; }
+    .s3 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 46px;
+      font-weight: 400;
+      color: #f3ede9;
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 24px;
+    }
+    .s3 h2 em { font-style: italic; color: var(--warm); }
+    .s3 .rule { width: 40px; height: 2px; background: rgba(196,167,151,.4); margin-bottom: 24px; }
+    .s3 p {
+      font-size: 16px;
+      color: rgba(243,237,233,.7);
+      line-height: 1.65;
+      max-width: 460px;
+    }
+    .s3 .wordmark { color: rgba(196,167,151,.45); }
+    .s3 .pg-num { color: rgba(196,167,151,.45); }
+
+    /* ═══════ SLIDE 4 — HOW IT WORKS (overview) ═══════ */
+    .s4 { background: var(--bg); }
+    .s4 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0 52px;
+      gap: 40px;
+    }
+    .s4 .title-group { text-align: center; }
+    .s4 .eyebrow { color: var(--warm); margin-bottom: 14px; }
+    .s4 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--t1);
+      letter-spacing: -.3px;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      justify-content: center;
+    }
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 128px;
+    }
+    .flow-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--border);
+      background: var(--cream);
+    }
+    .flow-icon-wrap.active {
+      background: var(--deep);
+      border-color: var(--deep);
+    }
+    .flow-icon-wrap svg { width: 30px; height: 30px; }
+    .flow-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t1);
+      text-align: center;
+    }
+    .flow-sublabel {
+      font-size: 11px;
+      color: var(--t2);
+      text-align: center;
+      line-height: 1.4;
+    }
+    .flow-connector {
+      width: 40px;
+      height: 1.5px;
+      background: var(--border);
+      margin-bottom: 30px;
+      flex-shrink: 0;
+    }
+    .s4 .wordmark { color: var(--t3); }
+    .s4 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 5 — STEP 1: PHOTO ═══════ */
+    .s5 { background: var(--cream); }
+    .s5 .inner {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 48px 52px 0;
+      gap: 32px;
+      align-items: center;
+    }
+    .s5 .left { display: flex; flex-direction: column; }
+    .s5 .step-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--warm);
+      margin-bottom: 16px;
+    }
+    .s5 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 40px;
+      font-weight: 400;
+      color: var(--t1);
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 18px;
+    }
+    .s5 h2 em { font-style: italic; }
+    .s5 .note {
+      font-size: 13px;
+      color: var(--t2);
+      line-height: 1.6;
+      border-left: 2px solid var(--warm);
+      padding-left: 14px;
+    }
+    .s5 .right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-visual {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .step-visual svg { width: 72px; height: 72px; }
+    .big-num {
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      font-family: 'Georgia', serif;
+      font-size: 96px;
+      font-weight: 400;
+      color: var(--border);
+      line-height: 1;
+      letter-spacing: -4px;
+    }
+    .s5 .wordmark { color: var(--t3); }
+    .s5 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 6 — STEP 2: DERM FOUNDATION ═══════ */
+    .s6 { background: var(--bg); }
+    .s6 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s6 .step-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--warm);
+      margin-bottom: 18px;
+    }
+    .s6 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 40px;
+      font-weight: 400;
+      color: var(--t1);
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 18px;
+    }
+    .s6 h2 em { font-style: italic; color: var(--deep); }
+    .s6 .desc {
+      font-size: 15px;
+      color: var(--t2);
+      line-height: 1.6;
+      max-width: 440px;
+      margin-bottom: 32px;
+    }
+    .gdf-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 18px;
+      background: var(--cream);
+      width: fit-content;
+      margin-bottom: 32px;
+    }
+    .gdf-dot { width: 9px; height: 9px; border-radius: 50%; background: #4285F4; flex-shrink: 0; }
+    .gdf-text { font-size: 12px; color: var(--t2); letter-spacing: .3px; }
+    .embed-visual {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .embed-label {
+      font-size: 11px;
+      color: var(--t3);
+      letter-spacing: .5px;
+    }
+    .embed-dots {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      max-width: 300px;
+    }
+    .embed-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      opacity: 0.35;
+    }
+    .embed-dot:nth-child(3n) { opacity: .7; }
+    .embed-dot:nth-child(5n) { opacity: 1; background: var(--deep); }
+    .s6 .wordmark { color: var(--t3); }
+    .s6 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 7 — STEP 3: DETECTED ═══════ */
+    .s7 { background: var(--bg2); }
+    .s7 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s7 .step-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--warm);
+      margin-bottom: 14px;
+    }
+    .s7 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 38px;
+      font-weight: 400;
+      color: var(--t1);
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 32px;
+    }
+    .s7 h2 em { font-style: italic; }
+    .detect-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+    .detect-card {
+      background: rgba(255,255,255,.6);
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid rgba(196,167,151,.2);
+    }
+    .detect-card svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+    .detect-card .label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t1);
+      margin-bottom: 3px;
+    }
+    .detect-card .val {
+      font-size: 11px;
+      color: var(--t2);
+      line-height: 1.4;
+    }
+    .s7 .wordmark { color: var(--t3); }
+    .s7 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 8 — STEP 4: ROUTINE (dark) ═══════ */
+    .s8 { background: var(--darkest); }
+    .s8 .accent-bar { background: var(--warm); }
+    .s8 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s8 .step-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--warm);
+      margin-bottom: 14px;
+    }
+    .s8 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 38px;
+      font-weight: 400;
+      color: #f3ede9;
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 28px;
+    }
+    .s8 h2 em { font-style: italic; color: var(--warm); }
+    .routine-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .routine-card {
+      background: rgba(255,255,255,.06);
+      border-radius: 3px;
+      padding: 16px 14px;
+      border-top: 2px solid var(--warm);
+    }
+    .routine-card .step-tag {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--warm);
+      margin-bottom: 10px;
+    }
+    .routine-card svg { width: 24px; height: 24px; margin-bottom: 10px; display: block; }
+    .routine-card .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f3ede9;
+      line-height: 1.3;
+    }
+    .s8 .wordmark { color: rgba(196,167,151,.4); }
+    .s8 .pg-num { color: rgba(196,167,151,.4); }
+
+    /* ═══════ SLIDE 9 — FOR BRANDS ═══════ */
+    .s9 { background: var(--bg); }
+    .s9 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s9 .eyebrow { color: var(--warm); margin-bottom: 16px; }
+    .s9 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 44px;
+      font-weight: 400;
+      color: var(--t1);
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 10px;
+    }
+    .s9 h2 em { font-style: italic; color: var(--deep); }
+    .s9 .rule { width: 40px; height: 2px; background: var(--warm); margin-bottom: 28px; }
+    .brand-list { display: flex; flex-direction: column; gap: 20px; }
+    .brand-item {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-icon svg { width: 20px; height: 20px; }
+    .brand-copy strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--t1);
+      margin-bottom: 2px;
+    }
+    .brand-copy span { font-size: 12px; color: var(--t2); line-height: 1.5; }
+    .s9 .wordmark { color: var(--t3); }
+    .s9 .pg-num { color: var(--t3); }
+
+    /* ═══════ SLIDE 10 — CTA (dark) ═══════ */
+    .s10 { background: var(--deep); }
+    .s10 .accent-bar { background: var(--warm); }
+    .s10 .inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+    }
+    .s10 .eyebrow { color: var(--warm); margin-bottom: 24px; }
+    .s10 h2 {
+      font-family: 'Georgia', serif;
+      font-size: 48px;
+      font-weight: 400;
+      color: #f3ede9;
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 24px;
+    }
+    .s10 h2 em { font-style: italic; color: var(--warm); }
+    .s10 .rule { width: 40px; height: 1.5px; background: rgba(196,167,151,.35); margin-bottom: 28px; }
+    .cta-links { display: flex; flex-direction: column; gap: 14px; }
+    .cta-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .cta-link-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(196,167,151,.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cta-link-icon svg { width: 16px; height: 16px; }
+    .cta-link-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--warm);
+    }
+    .cta-link-text span {
+      font-size: 12px;
+      color: rgba(243,237,233,.45);
+    }
+    .s10 .wordmark { color: rgba(196,167,151,.4); }
+    .s10 .pg-num { color: rgba(196,167,151,.4); }
+
+    /* Print fallback */
+    @media print {
+      body { background: white; padding: 0; gap: 0; }
+      .controls, .nav { display: none; }
+      .viewer { width: 680px; }
+      .clips { overflow: visible; }
+      .rail { transform: none !important; flex-direction: column; }
+      .slide { page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="controls">
+  <span class="controls-hint">← → to navigate &nbsp;·&nbsp; Click "Save PNG" to download current slide at 1080×1080</span>
+  <button class="save-btn" onclick="saveCurrentSlide()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Save PNG (slide <span id="save-num">1</span> of 10)
+  </button>
+</div>
+
+<div class="viewer">
+  <div class="clips">
+    <div class="rail" id="rail">
+
+      <!-- ══════════ SLIDE 1 — HERO ══════════ -->
+      <div class="slide s1" id="slide-0">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="left">
+            <div class="eyebrow">AI · Skincare · Open Source</div>
+            <h1>Know<br>Your <em>Skin.</em></h1>
+            <p>Dermatology-grade skin analysis, built so any skincare brand can offer personalised routines.</p>
+            <div class="chips">
+              <span class="chip chip-solid">AI Skin Analysis</span>
+              <span class="chip chip-outline">Google Cloud</span>
+              <span class="chip chip-outline">Open Source</span>
+            </div>
+          </div>
+          <div class="right">
+            <!-- Skin tone rings illustration -->
+            <svg viewBox="0 0 180 180" width="180" height="180" fill="none">
+              <circle cx="90" cy="90" r="78" stroke="#EAE6E3" stroke-width="1"/>
+              <circle cx="90" cy="90" r="60" fill="#f3ede9"/>
+              <circle cx="90" cy="90" r="44" fill="#e8d9d0"/>
+              <circle cx="90" cy="90" r="28" fill="#C4A797"/>
+              <circle cx="90" cy="90" r="14" fill="#5B4C41"/>
+              <!-- scan lines -->
+              <line x1="12" y1="90" x2="168" y2="90" stroke="#C4A797" stroke-width=".8" stroke-dasharray="3 5" opacity=".5"/>
+              <line x1="90" y1="12" x2="90" y2="168" stroke="#C4A797" stroke-width=".8" stroke-dasharray="3 5" opacity=".5"/>
+              <!-- corner marks -->
+              <path d="M20 36 L20 20 L36 20" stroke="#C4A797" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M160 36 L160 20 L144 20" stroke="#C4A797" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M20 144 L20 160 L36 160" stroke="#C4A797" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M160 144 L160 160 L144 160" stroke="#C4A797" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">1 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 2 — PROBLEM ══════════ -->
+      <div class="slide s2" id="slide-1">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="eyebrow">The Problem</div>
+          <h2>Generic advice<br>doesn't <em>fit</em><br>anyone.</h2>
+          <div class="rule"></div>
+          <p class="sub">No two customers share the same skin — yet most brands offer the same recommendations to all of them.</p>
+          <div class="s2-bars">
+            <div class="s2-bar" style="height:28px; opacity:.3;"></div>
+            <div class="s2-bar" style="height:44px; opacity:.5;"></div>
+            <div class="s2-bar" style="height:60px; opacity:.7;"></div>
+            <div class="s2-bar" style="height:40px; opacity:.45;"></div>
+            <div class="s2-bar" style="height:52px; opacity:.6;"></div>
+            <div class="s2-bar" style="height:32px; opacity:.35;"></div>
+            <div class="s2-bar" style="height:56px; opacity:.65;"></div>
+            <div class="s2-bar" style="height:36px; opacity:.4;"></div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">2 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 3 — SOLUTION (dark) ══════════ -->
+      <div class="slide s3" id="slide-2">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="eyebrow">The Solution</div>
+          <h2>AI skin analysis<br>built for <em>any</em><br>skincare brand.</h2>
+          <div class="rule"></div>
+          <p>Upload your product catalog. Every customer gets a personalised routine — matched to their actual skin.</p>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark">Know Your Skin</span>
+          <span class="pg-num">3 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 4 — HOW IT WORKS ══════════ -->
+      <div class="slide s4" id="slide-3">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="title-group">
+            <div class="eyebrow">The Process</div>
+            <h2>Four steps. One photo.</h2>
+          </div>
+          <div class="flow-row">
+            <div class="flow-node">
+              <div class="flow-icon-wrap active">
+                <!-- Camera -->
+                <svg viewBox="0 0 30 30" fill="none" stroke="#f3ede9" stroke-width="1.5">
+                  <path d="M28 22a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h4l2.5-3.5h7L20 8h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="15" cy="16" r="4.5"/>
+                </svg>
+              </div>
+              <span class="flow-label">Photo</span>
+              <span class="flow-sublabel">Customer uploads skin image</span>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-node">
+              <div class="flow-icon-wrap active">
+                <!-- Brain/AI nodes -->
+                <svg viewBox="0 0 30 30" fill="none" stroke="#f3ede9" stroke-width="1.5">
+                  <circle cx="15" cy="6" r="2.5"/>
+                  <circle cx="6" cy="22" r="2.5"/>
+                  <circle cx="24" cy="22" r="2.5"/>
+                  <circle cx="15" cy="16" r="2" fill="#f3ede9" stroke="none"/>
+                  <line x1="15" y1="8.5" x2="15" y2="14"/>
+                  <line x1="15" y1="14" x2="7.5" y2="20"/>
+                  <line x1="15" y1="14" x2="22.5" y2="20"/>
+                  <line x1="8.5" y1="22" x2="21.5" y2="22"/>
+                </svg>
+              </div>
+              <span class="flow-label">AI Reads</span>
+              <span class="flow-sublabel">Derm Foundation analysis</span>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-node">
+              <div class="flow-icon-wrap active">
+                <!-- Grid / detection -->
+                <svg viewBox="0 0 30 30" fill="none" stroke="#f3ede9" stroke-width="1.5">
+                  <rect x="4" y="4" width="9" height="9" rx="1.5"/>
+                  <rect x="17" y="4" width="9" height="9" rx="1.5"/>
+                  <rect x="4" y="17" width="9" height="9" rx="1.5"/>
+                  <rect x="17" y="17" width="9" height="9" rx="1.5"/>
+                </svg>
+              </div>
+              <span class="flow-label">Detects</span>
+              <span class="flow-sublabel">6 skin dimensions scored</span>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-node">
+              <div class="flow-icon-wrap active">
+                <!-- Sparkle / routine -->
+                <svg viewBox="0 0 30 30" fill="none" stroke="#f3ede9" stroke-width="1.5">
+                  <path d="M15 4 L16.5 12 L24 15 L16.5 18 L15 26 L13.5 18 L6 15 L13.5 12 Z"/>
+                </svg>
+              </div>
+              <span class="flow-label">Routine</span>
+              <span class="flow-sublabel">Your products, matched</span>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">4 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 5 — STEP 1: PHOTO ══════════ -->
+      <div class="slide s5" id="slide-4">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="left">
+            <div class="step-eyebrow">Step 01 — Upload</div>
+            <h2>Customer<br>takes a <em>photo.</em></h2>
+            <p class="note">Single image or multi-angle session — the system averages across uploads for higher accuracy.</p>
+          </div>
+          <div class="right">
+            <div class="step-visual" style="position:relative; overflow:visible;">
+              <!-- Camera SVG -->
+              <svg viewBox="0 0 80 80" width="80" height="80" fill="none" stroke="#5B4C41" stroke-width="1.5">
+                <path d="M74 60a5 5 0 0 1-5 5H11a5 5 0 0 1-5-5V26a5 5 0 0 1 5-5h11L28 13h24l6 8h5a5 5 0 0 1 5 5z"/>
+                <circle cx="40" cy="42" r="13"/>
+                <circle cx="40" cy="42" r="8" stroke="#C4A797"/>
+                <circle cx="62" cy="28" r="3" fill="#C4A797" stroke="none"/>
+              </svg>
+              <span class="big-num">01</span>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">5 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 6 — STEP 2: AI READS ══════════ -->
+      <div class="slide s6" id="slide-5">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="step-eyebrow">Step 02 — AI Reads</div>
+          <h2>Google <em>Derm Foundation</em><br>reads their skin.</h2>
+          <p class="desc">A medical-grade dermatology model generates a 6,144-dimensional skin signature — the same AI used in clinical research.</p>
+          <div class="gdf-badge">
+            <div class="gdf-dot"></div>
+            <span class="gdf-text">Powered by Google Derm Foundation · Vertex AI</span>
+          </div>
+          <div class="embed-visual">
+            <span class="embed-label">Skin signature →</span>
+            <div class="embed-dots">
+              <!-- 40 dots representing embedding dims -->
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+              <div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div><div class="embed-dot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">6 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 7 — STEP 3: DETECTION ══════════ -->
+      <div class="slide s7" id="slide-6">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="step-eyebrow">Step 03 — Detected</div>
+          <h2>6 dimensions.<br>One <em>photo.</em></h2>
+          <div class="detect-grid">
+            <div class="detect-card">
+              <!-- Droplet / skin type -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z"/></svg>
+              <div><div class="label">Skin Type</div><div class="val">Oily · Dry · Combo · Normal</div></div>
+            </div>
+            <div class="detect-card">
+              <!-- Alert circle / concerns -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r=".5" fill="#C4A797"/></svg>
+              <div><div class="label">Concerns</div><div class="val">Acne · Pigment · Redness...</div></div>
+            </div>
+            <div class="detect-card">
+              <!-- Color swatch / tone -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4" fill="#C4A797" stroke="none" opacity=".5"/></svg>
+              <div><div class="label">Skin Tone</div><div class="val">Fitzpatrick · Monk scale</div></div>
+            </div>
+            <div class="detect-card">
+              <!-- Layers / texture -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              <div><div class="label">Texture</div><div class="val">Smooth · Rough · Uneven</div></div>
+            </div>
+            <div class="detect-card">
+              <!-- Clock / aging -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <div><div class="label">Aging Signs</div><div class="val">Fine lines · Volume loss</div></div>
+            </div>
+            <div class="detect-card">
+              <!-- Calendar / age -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <div><div class="label">Skin Age</div><div class="val">Estimated biological age</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">7 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 8 — STEP 4: ROUTINE (dark) ══════════ -->
+      <div class="slide s8" id="slide-7">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="step-eyebrow">Step 04 — Output</div>
+          <h2>A personalised<br>routine from <em>your</em><br>catalog.</h2>
+          <div class="routine-grid">
+            <div class="routine-card">
+              <div class="step-tag">Cleanser</div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M8 3H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><rect x="8" y="1" width="8" height="4" rx="1"/></svg>
+              <div class="name">Matched to skin type + concerns</div>
+            </div>
+            <div class="routine-card">
+              <div class="step-tag">Treatment</div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+              <div class="name">Targeted to active concern</div>
+            </div>
+            <div class="routine-card">
+              <div class="step-tag">Moisturiser</div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2Z"/></svg>
+              <div class="name">Supports barrier & texture</div>
+            </div>
+            <div class="routine-card">
+              <div class="step-tag">SPF</div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+              <div class="name">Tone-appropriate sun protection</div>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark">Know Your Skin</span>
+          <span class="pg-num">8 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 9 — FOR BRANDS ══════════ -->
+      <div class="slide s9" id="slide-8">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="eyebrow">For Brands</div>
+          <h2>Plug in.<br><em>Power up.</em></h2>
+          <div class="rule"></div>
+          <div class="brand-list">
+            <div class="brand-item">
+              <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#5B4C41" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+              </div>
+              <div class="brand-copy">
+                <strong>Upload your product catalog</strong>
+                <span>Concern-to-product mapping is auto-generated. No manual tagging.</span>
+              </div>
+            </div>
+            <div class="brand-item">
+              <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#5B4C41" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <div class="brand-copy">
+                <strong>Embed in your app or site</strong>
+                <span>REST API, Docker-ready. Live in days, not months.</span>
+              </div>
+            </div>
+            <div class="brand-item">
+              <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#5B4C41" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div class="brand-copy">
+                <strong>Your brand, fully customisable</strong>
+                <span>Copy, tone, product copy — white-label ready.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark" style="color:var(--t3)">Know Your Skin</span>
+          <span class="pg-num" style="color:var(--t3)">9 / 10</span>
+        </div>
+      </div>
+
+      <!-- ══════════ SLIDE 10 — CTA (dark) ══════════ -->
+      <div class="slide s10" id="slide-9">
+        <div class="accent-bar"></div>
+        <div class="inner">
+          <div class="eyebrow">Open Source</div>
+          <h2>Built in public.<br><em>Open</em> to<br>collaborate.</h2>
+          <div class="rule"></div>
+          <div class="cta-links">
+            <div class="cta-link">
+              <div class="cta-link-icon">
+                <!-- GitHub icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+              </div>
+              <div class="cta-link-text">
+                <strong>github.com/musadiqg/know-your-skin</strong>
+                <span>Full source code, training scripts, architecture</span>
+              </div>
+            </div>
+            <div class="cta-link">
+              <div class="cta-link-icon">
+                <!-- LinkedIn icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="#C4A797" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              </div>
+              <div class="cta-link-text">
+                <strong>linkedin.com/in/musadiqgilal</strong>
+                <span>Connect — open to collaborations &amp; conversations</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wordmark-strip">
+          <span class="wordmark">Know Your Skin</span>
+          <span class="pg-num">10 / 10</span>
+        </div>
+      </div>
+
+    </div><!-- /rail -->
+  </div><!-- /clips -->
+
+  <div class="nav">
+    <button class="nav-btn" id="prev" onclick="go(cur-1)">&#8592;</button>
+    <div class="dots" id="dots"></div>
+    <span class="nav-ctr" id="ctr">1 / 10</span>
+    <button class="nav-btn" id="next" onclick="go(cur+1)">&#8594;</button>
+  </div>
+</div>
+
+<script>
+  const N = 10;
+  let cur = 0;
+  const rail = document.getElementById('rail');
+  const dotsEl = document.getElementById('dots');
+  const ctrEl = document.getElementById('ctr');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  const saveNumEl = document.getElementById('save-num');
+
+  for (let i = 0; i < N; i++) {
+    const d = document.createElement('span');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.onclick = () => go(i);
+    dotsEl.appendChild(d);
+  }
+
+  function go(n) {
+    if (n < 0 || n >= N) return;
+    cur = n;
+    rail.style.transform = `translateX(-${cur * 680}px)`;
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+    ctrEl.textContent = `${cur + 1} / ${N}`;
+    saveNumEl.textContent = cur + 1;
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === N - 1;
+  }
+
+  async function saveCurrentSlide() {
+    const slide = document.getElementById(`slide-${cur}`);
+    const saveBtn = document.querySelector('.save-btn');
+    const origText = saveBtn.innerHTML;
+    saveBtn.textContent = 'Generating...';
+    saveBtn.disabled = true;
+
+    try {
+      await document.fonts.ready;
+      const canvas = await html2canvas(slide, {
+        width: 680,
+        height: 680,
+        scale: 1080 / 680,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false,
+      });
+
+      const link = document.createElement('a');
+      const padded = String(cur + 1).padStart(2, '0');
+      link.download = `kys-slide-${padded}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      alert('Save failed. Try right-clicking the slide and using "Save image as" instead.');
+      console.error(e);
+    } finally {
+      saveBtn.innerHTML = origText;
+      saveBtn.disabled = false;
+      saveNumEl.textContent = cur + 1;
+    }
+  }
+
+  go(0);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') go(cur + 1);
+    if (e.key === 'ArrowLeft') go(cur - 1);
+  });
+</script>
+
+</body>
+</html>

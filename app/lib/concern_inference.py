@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 
 from config.concerns import CONCERN_CONFIG, CONCERN_TAGS, CONCERN_MAP
-from config.hudson_products import load_product_config
+from config.brand_products import load_product_config
 from lib.derm_local import embed_image_path
 from lib.recommendations import build_routine
 from lib.reporting import build_report
@@ -122,7 +122,7 @@ def analyze_image_with_routine(
 ) -> Dict[str, Any]:
     """
     Extended helper: run concern analysis and build a product routine
-    using the Hudson product configuration.
+    using the brand product configuration.
     """
     concerns = analyze_image(image_path, models_dir=models_dir, threshold=threshold)
     product_cfg = load_product_config()

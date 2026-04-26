@@ -1,27 +1,51 @@
+# ── Python ────────────────────────────────────────────────────────────────────
 app/venv/
 venv/
+.venv/
+.venv-test/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
 
-# Do not track local model binaries; we will upload them via HF UI
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+*.env
+!env.example
+*service-account*.json
+*credentials*.json
+*key*.json
+
+# ── Trained model artifacts ───────────────────────────────────────────────────
+# Models are large binary files trained separately — see README for instructions.
 app/models/**/*.joblib
+app/models/**/*.pkl
+app/models/**/*.pt
+app/models/**/*.pth
 
-# Age estimation models (downloaded at runtime)
+# Age estimation models (downloaded at runtime via Dockerfile)
 app/models/age/*.caffemodel
 app/models/age/*.pb
+app/models/age/*.prototxt
 
-# Large data files (download via scripts/download_scin_data.py)
+# ── Datasets ─────────────────────────────────────────────────────────────────
 data/
-
-# Environment files
-.env
-
-# Test images
-test.jpg
-test2.jpg
-
-# Skin type datasets (too large for git)
 skin-type-1/
 skin-type-2/
 skin-type-merged/
-.venv-test/
+
+# ── Test / scratch images ─────────────────────────────────────────────────────
+test.jpg
+test2.jpg
+*.test.jpg
+*.test.png
+
+# ── OS / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

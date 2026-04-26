@@ -23,13 +23,14 @@ logger = logging.getLogger(__name__)
 
 
 app = FastAPI(
-    title="Hudson Skin Analysis API",
+    title="Know Your Skin API",
     description=(
-        "Local API for running Derm Foundation + SCIN-based cosmetic attributes "
-        "and concern analysis, returning a combined narrative report with Hudson "
-        "product recommendations."
+        "AI-powered skin analysis API using Google Derm Foundation (Vertex AI) "
+        "and custom classifiers trained on dermatology datasets. Returns cosmetic "
+        "attributes, skin concerns, and a personalised product routine matched to "
+        "your brand's catalog. See README for brand customisation instructions."
     ),
-    version="0.2.0",
+    version="1.0.0",
 )
 
 # For prototype purposes, allow all origins. You can tighten this later.
