@@ -88,10 +88,7 @@ export default function App() {
               <p className="lp-eyebrow" id="demo-title">
                 Demo
               </p>
-              <h2 className="lp-title">See it in motion</h2>
-              <p className="lp-lede lp-lede-after-title">
-                Replace <code className="lp-code">public/demo.mp4</code> whenever you ship a new recording.
-              </p>
+              <h2 className="lp-title lp-demo-title">See it in motion</h2>
             </motion.div>
             <DemoVideo />
           </div>

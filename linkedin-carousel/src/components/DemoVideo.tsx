@@ -67,7 +67,6 @@ export function DemoVideo() {
                 </svg>
               )}
             </button>
-            <span className="demo-hint">Tap the frame or use the control to play</span>
           </div>
         </div>
       </div>
